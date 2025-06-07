@@ -1059,61 +1059,151 @@ setTimeout(function() {
       return;
     }
     
+    console.log("渲染二维码，QRCode类型:", typeof QRCode, "QRCode.toCanvas:", typeof QRCode.toCanvas);
+    
     const canvas = $('qrCanvas');
     canvas.width = canvas.height = size;
+    
+    // 确保画布干净
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 先创建一个简单的文本显示，表明正在生成二维码
+    ctx.fillStyle = styleOptions.bg || '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = styleOptions.fg || '#000000';
+    ctx.font = '14px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('生成中...', canvas.width/2, canvas.height/2);
     
     // 隐藏占位符，显示画布
     $('qrPlaceholder').classList.add('hidden');
     canvas.classList.remove('hidden');
     
-    // 根据不同样式选择不同的渲染方法
-    try {
-      if (style === 'basic') {
-        await renderBasicQR(canvas, text, {
-          errorCorrectionLevel: level,
-          margin, width: size,
-          color: {
-            dark: '#' + hex(styleOptions.fg),
-            light: '#' + hex(styleOptions.bg)
+    // 立即禁用生成按钮防止重复点击
+    const generateBtn = document.querySelector('form button[type="submit"]');
+    if (generateBtn) generateBtn.disabled = true;
+    
+    // 使用setTimeout给UI时间更新
+    setTimeout(async () => {
+      try {
+        // 根据不同样式选择不同的渲染方法
+        if (style === 'basic') {
+          await renderBasicQR(canvas, text, {
+            errorCorrectionLevel: level,
+            margin, width: size,
+            color: {
+              dark: '#' + hex(styleOptions.fg),
+              light: '#' + hex(styleOptions.bg)
+            }
+          });
+        } else if (style === 'gradient') {
+          await renderGradientQR(canvas, text, {
+            errorCorrectionLevel: level,
+            margin, width: size,
+            from: styleOptions.gradientFrom,
+            to: styleOptions.gradientTo,
+            type: styleOptions.gradientType
+          });
+        } else if (style === 'dots' || style === 'rounded') {
+          await renderCustomStyleQR(canvas, text, {
+            errorCorrectionLevel: level,
+            margin, width: size,
+            style: style,
+            color: {
+              dark: '#' + hex(styleOptions.fg),
+              light: '#' + hex(styleOptions.bg)
+            }
+          });
+        } else {
+          // 如果没有匹配的样式，使用最基本的二维码
+          console.log("使用最基本的二维码渲染方式");
+          if (typeof QRCode === 'function') {
+            // 清除canvas上可能存在的内容
+            while (canvas.firstChild) {
+              canvas.removeChild(canvas.firstChild);
+            }
+            
+            // 确保画布是空的
+            canvas.innerHTML = '';
+            
+            try {
+              new QRCode(canvas, {
+                text: text,
+                width: size,
+                height: size,
+                colorDark: '#000000',
+                colorLight: '#ffffff'
+              });
+            } catch (err) {
+              console.error("基本QRCode渲染失败:", err);
+              // 最简单的尝试
+              new QRCode(canvas, text);
+            }
           }
-        });
-      } else if (style === 'gradient') {
-        await renderGradientQR(canvas, text, {
-          errorCorrectionLevel: level,
-          margin, width: size,
-          from: styleOptions.gradientFrom,
-          to: styleOptions.gradientTo,
-          type: styleOptions.gradientType
-        });
-      } else if (style === 'dots' || style === 'rounded') {
-        await renderCustomStyleQR(canvas, text, {
-          errorCorrectionLevel: level,
-          margin, width: size,
-          style: style,
-          color: {
-            dark: '#' + hex(styleOptions.fg),
-            light: '#' + hex(styleOptions.bg)
-          }
-        });
+        }
+        
+        // 如果有Logo，添加到二维码中心
+        if (styleOptions.logo) {
+          await addLogoToQR(canvas, styleOptions.logo);
+        }
+        
+        // 启用下载按钮
+        $('dlBtn').disabled = false;
+        $('svgBtn').disabled = false;
+        $('shareBtn').disabled = false;
+        
+        // 保存到历史记录
+        saveToHistory(canvas.toDataURL('image/png'), text);
+        
+      } catch (err) {
+        console.error('Error generating QR code:', err);
+        
+                  // 尝试最后的备选方案
+          try {
+            console.log("尝试最简单的QRCode渲染方式");
+            // 清除canvas内容
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 使用简单的渲染方法
+            renderSimpleQR(canvas, text);
+            
+            // 保存到历史记录
+            setTimeout(() => {
+              try {
+                const dataURL = canvas.toDataURL('image/png');
+                if (dataURL && dataURL !== 'data:,') {
+                  saveToHistory(dataURL, text);
+                  
+                  // 启用下载按钮
+                  $('dlBtn').disabled = false;
+                  $('svgBtn').disabled = false;
+                  $('shareBtn').disabled = false;
+                } else {
+                  throw new Error('二维码生成失败');
+                }
+              } catch (e) {
+                console.error('无法获取二维码图像:', e);
+                throw e;
+              }
+            }, 500);
+        } catch (finalErr) {
+          console.error('最终尝试也失败:', finalErr);
+          alert('无法生成二维码: ' + err.message);
+          // 显示错误消息
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = '#ff0000';
+          ctx.font = '14px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText('二维码生成失败', canvas.width/2, canvas.height/2 - 20);
+          ctx.fillText('请刷新页面重试', canvas.width/2, canvas.height/2 + 20);
+        }
+      } finally {
+        // 重新启用生成按钮
+        if (generateBtn) generateBtn.disabled = false;
       }
-      
-      // 如果有Logo，添加到二维码中心
-      if (styleOptions.logo) {
-        addLogoToQR(canvas, styleOptions.logo);
-      }
-      
-      // 启用下载按钮
-      $('dlBtn').disabled = false;
-      $('svgBtn').disabled = false;
-      $('shareBtn').disabled = false;
-      
-      // 保存到历史记录
-      saveToHistory(canvas.toDataURL('image/png'), text);
-      
-    } catch (err) {
-      console.error('Error generating QR code:', err);
-      alert('Error: ' + err.message);
-    }
+    }, 100);
   }
   
   // 基础二维码渲染
@@ -1563,6 +1653,34 @@ setTimeout(function() {
     
     // 显示保存成功消息
     showMessage($('scanResult'), dict[settings.lang].qrSaved);
+  }
+  
+  // 最简单的二维码渲染方法，作为最后的备选方案
+  function renderSimpleQR(container, text) {
+    console.log("使用最简单的QRCode渲染方法");
+    // 清除容器内容
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+    
+    try {
+      // 最简单的调用方式
+      return new QRCode(container, text);
+    } catch (err) {
+      console.error("简单渲染失败:", err);
+      
+      try {
+        // 如果直接传递文本失败，尝试使用配置对象
+        return new QRCode(container, {
+          text: text,
+          width: 256,
+          height: 256
+        });
+      } catch (innerErr) {
+        console.error("所有渲染方法均失败:", innerErr);
+        throw new Error("无法生成二维码，请刷新页面重试");
+      }
+    }
   }
   
   /* ---------- 7. 样式切换处理 ---------- */
@@ -2169,6 +2287,8 @@ setTimeout(function() {
   
   /* ---------- 最终初始化 ---------- */
   window.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM加载完成，QRCode状态:", window.qrCodeLoaded, typeof QRCode);
+    
     // 初始化基本功能
     initSettings();
     initTabs();
@@ -2179,6 +2299,9 @@ setTimeout(function() {
     initScanner();
     initHistory();
     initDownloadButtons();
+    
+    // 检查QRCode库是否加载
+    checkAndFixQRCodeLibrary();
     
     // 绑定设置页事件
     $('saveSettingsBtn').addEventListener('click', saveSettings);

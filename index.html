@@ -10,23 +10,35 @@
 // 用于检查QRCode库是否成功加载
 window.qrCodeLoaded = false;
 </script>
+<!-- 主要QRCode库 -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" 
-  onload="window.qrCodeLoaded = true;"
+  onload="window.qrCodeLoaded = true; console.log('Main QRCode library loaded');"
   onerror="console.error('Failed to load QRCode library from primary source');">
+</script>
+<!-- 备用QRCode库 -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"
+  onload="if(!window.qrCodeLoaded) { window.qrCodeLoaded = true; console.log('Backup QRCode library loaded'); }"
+  onerror="console.error('Failed to load backup QRCode library');">
 </script>
 <!-- 备用CDN，确保至少一个QRCode库能够加载 -->
 <script>
 // 如果主要CDN加载失败，尝试使用备用CDN
-if (!window.qrCodeLoaded) {
-  const backup = document.createElement('script');
-  backup.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js";
-  backup.onload = function() {
-    window.qrCodeLoaded = true;
-    window.QRCode = qrcode; // 兼容接口
-    console.log('Loaded QRCode from backup CDN');
-  };
-  document.head.appendChild(backup);
-}
+setTimeout(function() {
+  if (!window.qrCodeLoaded) {
+    const backup = document.createElement('script');
+    backup.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js";
+    backup.onload = function() {
+      window.qrCodeLoaded = true;
+      window.QRCode = qrcode; // 兼容接口
+      console.log('Loaded QRCode from fallback CDN');
+    };
+    backup.onerror = function() {
+      console.error('All QRCode libraries failed to load');
+      alert('无法加载二维码库，请检查您的网络连接');
+    };
+    document.head.appendChild(backup);
+  }
+}, 1000);
 </script>
 <!-- 新增库 -->
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
@@ -968,15 +980,8 @@ if (!window.qrCodeLoaded) {
   }
   
   /* ---------- 6. 生成二维码 ---------- */
-  // 创建二维码渲染功能
-  async function renderQR(cfg) {
-    const {text, size, margin, level, style, ...styleOptions} = cfg;
-    if(!text) {
-      alert(settings.lang === 'zh' ? '请输入内容' : 'Please enter content');
-      return;
-    }
-    
-    // 检查QRCode库是否已加载
+  // 检查并尝试修复QRCode库加载问题
+  function checkAndFixQRCodeLibrary() {
     if (!window.qrCodeLoaded || typeof QRCode === 'undefined') {
       const errorMsg = settings.lang === 'zh' ? 
         'QRCode库未加载，请检查网络连接并刷新页面。' : 
@@ -988,8 +993,14 @@ if (!window.qrCodeLoaded) {
       const errorDiv = document.createElement('div');
       errorDiv.className = 'message error';
       errorDiv.textContent = errorMsg;
-      $('qrPlaceholder').innerHTML = '';
-      $('qrPlaceholder').appendChild(errorDiv);
+      
+      // 尝试恢复元素
+      if ($('qrPlaceholder')) {
+        $('qrPlaceholder').innerHTML = '';
+        $('qrPlaceholder').appendChild(errorDiv);
+      } else {
+        document.querySelector('.container').insertBefore(errorDiv, document.querySelector('.tabs'));
+      }
       
       // 添加刷新按钮
       const refreshBtn = document.createElement('button');
@@ -1001,18 +1012,50 @@ if (!window.qrCodeLoaded) {
       errorDiv.appendChild(document.createElement('br'));
       errorDiv.appendChild(refreshBtn);
       
-      // 尝试重新加载QRCode库
-      const script = document.createElement('script');
-      script.src = "https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js";
-      script.onload = function() {
-        window.qrCodeLoaded = true;
-        const successDiv = document.createElement('div');
-        successDiv.className = 'message success';
-        successDiv.innerHTML = `<strong>QRCode库已成功加载</strong>，请刷新页面或点击上方按钮刷新。`;
-        document.querySelector('.container').insertBefore(successDiv, errorDiv.nextSibling);
-      };
-      document.head.appendChild(script);
+      // 尝试重新加载多个QRCode库
+      const libraries = [
+        "https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js",
+        "https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"
+      ];
       
+      let loadedCount = 0;
+      libraries.forEach((src, index) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = function() {
+          loadedCount++;
+          window.qrCodeLoaded = true;
+          
+          // 对于qrcode-generator库，需要特殊处理
+          if (typeof qrcode !== 'undefined' && typeof QRCode === 'undefined') {
+            window.QRCode = qrcode;
+          }
+          
+          const successDiv = document.createElement('div');
+          successDiv.className = 'message success';
+          successDiv.innerHTML = `<strong>QRCode库已成功加载</strong>（${loadedCount}/${libraries.length}），请刷新页面或点击上方按钮刷新。`;
+          document.querySelector('.container').insertBefore(successDiv, errorDiv.nextSibling);
+        };
+        document.head.appendChild(script);
+      });
+      
+      return false;
+    }
+    
+    return true;
+  }
+
+  // 创建二维码渲染功能
+  async function renderQR(cfg) {
+    const {text, size, margin, level, style, ...styleOptions} = cfg;
+    if(!text) {
+      alert(settings.lang === 'zh' ? '请输入内容' : 'Please enter content');
+      return;
+    }
+    
+    // 检查QRCode库是否已加载
+    if (!checkAndFixQRCodeLibrary()) {
       return;
     }
     
@@ -1083,12 +1126,13 @@ if (!window.qrCodeLoaded) {
         
         // 确保QRCode是作为变量而不是类型访问
         if (typeof QRCode === 'undefined') {
-          reject(new Error('QRCode library is not loaded. Please check your internet connection and refresh.'));
+          reject(new Error('QRCode库未加载。请检查网络连接并刷新页面。'));
           return;
         }
         
         // 检查QRCode库类型并使用适当的方法
         if (typeof QRCode.toCanvas === 'function') {
+          console.log('使用QRCode.toCanvas API渲染');
           // 使用soldair/node-qrcode库的API
           const opts = {
             width: options.width,
@@ -1109,20 +1153,53 @@ if (!window.qrCodeLoaded) {
             }
           });
         } else {
-          // 假设是使用实例化方式的QRCode库
-          // 创建一个新的QRCode实例
-          const qr = new QRCode(canvas, {
-            text: text,
-            width: options.width,
-            height: options.width,
-            colorDark: options.color.dark,
-            colorLight: options.color.light,
-            correctLevel: QRCode.CorrectLevel ? QRCode.CorrectLevel[options.errorCorrectionLevel] : 0,
-            margin: options.margin
-          });
+          console.log('使用QRCode构造函数渲染');
+          // 清除canvas上可能存在的内容
+          while (canvas.firstChild) {
+            canvas.removeChild(canvas.firstChild);
+          }
           
-          // 给QRCode一点时间渲染
-          setTimeout(() => resolve(), 100);
+          // 确保画布是空的
+          canvas.innerHTML = '';
+          
+          // 使用实例化方式的QRCode库
+          try {
+            // 确定正确的纠错级别常量
+            let correctLevel = 0; // 默认为L
+            if (QRCode.CorrectLevel) {
+              switch(options.errorCorrectionLevel) {
+                case 'L': correctLevel = QRCode.CorrectLevel.L; break;
+                case 'M': correctLevel = QRCode.CorrectLevel.M; break;
+                case 'Q': correctLevel = QRCode.CorrectLevel.Q; break;
+                case 'H': correctLevel = QRCode.CorrectLevel.H; break;
+                default: correctLevel = QRCode.CorrectLevel.M;
+              }
+            }
+            
+            // 创建一个新的QRCode实例
+            const qr = new QRCode(canvas, {
+              text: text,
+              width: options.width,
+              height: options.width,
+              colorDark: options.color.dark,
+              colorLight: options.color.light,
+              correctLevel: correctLevel,
+              margin: options.margin
+            });
+            
+            // 给QRCode一点时间渲染
+            setTimeout(() => resolve(), 300);
+          } catch (innerErr) {
+            console.error('QRCode实例化错误:', innerErr);
+            
+            // 尝试退回到简单的实例化方式
+            try {
+              new QRCode(canvas, text);
+              setTimeout(() => resolve(), 300);
+            } catch (fallbackErr) {
+              reject(fallbackErr);
+            }
+          }
         }
       } catch (err) {
         console.error('renderBasicQR error:', err);
@@ -1139,7 +1216,7 @@ if (!window.qrCodeLoaded) {
       try {
         // 确保QRCode是作为变量而不是类型访问
         if (typeof QRCode === 'undefined') {
-          reject(new Error('QRCode library is not loaded. Please check your internet connection and refresh.'));
+          reject(new Error('QRCode库未加载。请检查网络连接并刷新页面。'));
           return;
         }
         
@@ -1150,6 +1227,7 @@ if (!window.qrCodeLoaded) {
         
         // 根据QRCode库类型选择合适的渲染方法
         if (typeof QRCode.toCanvas === 'function') {
+          console.log('使用QRCode.toCanvas API渲染渐变二维码');
           // 使用soldair/node-qrcode库的API
           const opts = {
             width: width,
@@ -1170,19 +1248,45 @@ if (!window.qrCodeLoaded) {
             }
           });
         } else {
-          // 创建基础二维码到临时画布
-          const qr = new QRCode(tempCanvas, {
-            text: text,
-            width: width,
-            height: width,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel ? QRCode.CorrectLevel[errorCorrectionLevel] : 0,
-            margin: margin
-          });
+          console.log('使用QRCode构造函数渲染渐变二维码');
           
-          // 等待QR渲染完成
-          setTimeout(applyGradientEffect, 100);
+          try {
+            // 确定正确的纠错级别常量
+            let correctLevel = 0; // 默认为L
+            if (QRCode.CorrectLevel) {
+              switch(errorCorrectionLevel) {
+                case 'L': correctLevel = QRCode.CorrectLevel.L; break;
+                case 'M': correctLevel = QRCode.CorrectLevel.M; break;
+                case 'Q': correctLevel = QRCode.CorrectLevel.Q; break;
+                case 'H': correctLevel = QRCode.CorrectLevel.H; break;
+                default: correctLevel = QRCode.CorrectLevel.M;
+              }
+            }
+            
+            // 创建基础二维码到临时画布
+            const qr = new QRCode(tempCanvas, {
+              text: text,
+              width: width,
+              height: width,
+              colorDark: "#000000",
+              colorLight: "#ffffff",
+              correctLevel: correctLevel,
+              margin: margin
+            });
+            
+            // 等待QR渲染完成
+            setTimeout(applyGradientEffect, 300);
+          } catch (innerErr) {
+            console.error('QRCode渐变实例化错误:', innerErr);
+            
+            // 尝试使用简单方法
+            try {
+              new QRCode(tempCanvas, text);
+              setTimeout(applyGradientEffect, 300);
+            } catch (fallbackErr) {
+              reject(fallbackErr);
+            }
+          }
         }
         
         // 应用渐变效果的函数
@@ -1243,7 +1347,7 @@ if (!window.qrCodeLoaded) {
       try {
         // 确保QRCode是作为变量而不是类型访问
         if (typeof QRCode === 'undefined') {
-          reject(new Error('QRCode library is not loaded. Please check your internet connection and refresh.'));
+          reject(new Error('QRCode库未加载。请检查网络连接并刷新页面。'));
           return;
         }
         
@@ -1254,6 +1358,7 @@ if (!window.qrCodeLoaded) {
         
         // 根据QRCode库类型选择合适的渲染方法
         if (typeof QRCode.toCanvas === 'function') {
+          console.log('使用QRCode.toCanvas API渲染自定义样式二维码');
           // 使用soldair/node-qrcode库的API
           const opts = {
             width: width,
@@ -1274,19 +1379,45 @@ if (!window.qrCodeLoaded) {
             }
           });
         } else {
-          // 创建基础二维码到临时画布
-          const qr = new QRCode(tempCanvas, {
-            text: text,
-            width: width,
-            height: width,
-            colorDark: color.dark,
-            colorLight: color.light,
-            correctLevel: QRCode.CorrectLevel ? QRCode.CorrectLevel[errorCorrectionLevel] : 0,
-            margin: margin
-          });
+          console.log('使用QRCode构造函数渲染自定义样式二维码');
           
-          // 等待QR渲染完成后应用样式
-          setTimeout(applyCustomStyle, 100);
+          try {
+            // 确定正确的纠错级别常量
+            let correctLevel = 0; // 默认为L
+            if (QRCode.CorrectLevel) {
+              switch(errorCorrectionLevel) {
+                case 'L': correctLevel = QRCode.CorrectLevel.L; break;
+                case 'M': correctLevel = QRCode.CorrectLevel.M; break;
+                case 'Q': correctLevel = QRCode.CorrectLevel.Q; break;
+                case 'H': correctLevel = QRCode.CorrectLevel.H; break;
+                default: correctLevel = QRCode.CorrectLevel.M;
+              }
+            }
+            
+            // 创建基础二维码到临时画布
+            const qr = new QRCode(tempCanvas, {
+              text: text,
+              width: width,
+              height: width,
+              colorDark: color.dark,
+              colorLight: color.light,
+              correctLevel: correctLevel,
+              margin: margin
+            });
+            
+            // 等待QR渲染完成后应用样式
+            setTimeout(applyCustomStyle, 300);
+          } catch (innerErr) {
+            console.error('QRCode自定义样式实例化错误:', innerErr);
+            
+            // 尝试使用简单方法
+            try {
+              new QRCode(tempCanvas, text);
+              setTimeout(applyCustomStyle, 300);
+            } catch (fallbackErr) {
+              reject(fallbackErr);
+            }
+          }
         }
         
         // 应用自定义样式的函数
@@ -1575,24 +1706,31 @@ if (!window.qrCodeLoaded) {
   
   // 更新URL参数
   function updateURLParams(config) {
-    const params = new URLSearchParams({
-      text: encodeURIComponent(config.text),
-      size: config.size,
-      margin: config.margin,
-      level: config.level,
-      style: config.style
-    });
-    
-    if (config.style === 'basic') {
-      params.set('fg', hex(config.fg));
-      params.set('bg', hex(config.bg));
-    } else if (config.style === 'gradient') {
-      params.set('gradientFrom', hex(config.gradientFrom));
-      params.set('gradientTo', hex(config.gradientTo));
-      params.set('gradientType', config.gradientType);
+    // 避免与全局history变量冲突
+    try {
+      const params = new URLSearchParams({
+        text: encodeURIComponent(config.text),
+        size: config.size,
+        margin: config.margin,
+        level: config.level,
+        style: config.style
+      });
+      
+      if (config.style === 'basic') {
+        params.set('fg', hex(config.fg));
+        params.set('bg', hex(config.bg));
+      } else if (config.style === 'gradient') {
+        params.set('gradientFrom', hex(config.gradientFrom));
+        params.set('gradientTo', hex(config.gradientTo));
+        params.set('gradientType', config.gradientType);
+      }
+      
+      // 使用window.history而不是history
+      window.history.replaceState(null, '', location.pathname + '?' + params.toString());
+    } catch (err) {
+      console.error('Error updating URL parameters:', err);
+      // 失败时静默处理，不影响主要功能
     }
-    
-    history.replaceState(null, '', location.pathname + '?' + params.toString());
   }
   
   // 从URL参数自动生成
@@ -1925,40 +2063,72 @@ if (!window.qrCodeLoaded) {
       const text = $('text').value.trim();
       
       try {
-        // 创建一个简单的SVG
-        // QRCode.js 没有直接的 SVG 导出方法，所以我们使用一个变通方法
-        // 从现有的画布创建 SVG
-        const size = canvas.width;
-        const svgNS = "http://www.w3.org/2000/svg";
-        const svg = document.createElementNS(svgNS, "svg");
-        svg.setAttribute("width", size);
-        svg.setAttribute("height", size);
-        svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+        if (typeof QRCode === 'undefined') {
+          throw new Error('QRCode库未加载。请检查网络连接并刷新页面。');
+        }
         
-        // 添加一个白色背景矩形
-        const rect = document.createElementNS(svgNS, "rect");
-        rect.setAttribute("width", "100%");
-        rect.setAttribute("height", "100%");
-        rect.setAttribute("fill", "#ffffff");
-        svg.appendChild(rect);
-        
-        // 将画布数据转换为图像并添加到 SVG
-        const img = document.createElementNS(svgNS, "image");
-        img.setAttribute("width", "100%");
-        img.setAttribute("height", "100%");
-        img.setAttribute("href", canvas.toDataURL("image/png"));
-        svg.appendChild(img);
-        
-        // 转换为字符串并下载
-        const serializer = new XMLSerializer();
-        const svgString = serializer.serializeToString(svg);
-        const blob = new Blob([svgString], {type: 'image/svg+xml'});
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = 'qrcode.svg';
-        link.href = url;
-        link.click();
-        URL.revokeObjectURL(url);
+        // 检查是否支持toDataURL SVG
+        if (typeof QRCode.toString === 'function') {
+          // 如果是soldair/node-qrcode库
+          const opts = {
+            errorCorrectionLevel: $('level').value,
+            margin: +$('margin').value,
+            color: {
+              dark: $('style').value === 'basic' ? $('fg').value : '#000000',
+              light: $('style').value === 'basic' ? $('bg').value : '#ffffff'
+            },
+            type: 'svg'
+          };
+          
+          QRCode.toString(text, opts, function(error, svgString) {
+            if (error) {
+              throw error;
+            }
+            
+            // 下载SVG
+            const blob = new Blob([svgString], {type: 'image/svg+xml'});
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = 'qrcode.svg';
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+          });
+        } else {
+          console.log('使用画布转换为SVG');
+          // 使用备用方法：从Canvas创建SVG
+          const size = canvas.width;
+          const svgNS = "http://www.w3.org/2000/svg";
+          const svg = document.createElementNS(svgNS, "svg");
+          svg.setAttribute("width", size);
+          svg.setAttribute("height", size);
+          svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+          
+          // 添加一个背景矩形
+          const rect = document.createElementNS(svgNS, "rect");
+          rect.setAttribute("width", "100%");
+          rect.setAttribute("height", "100%");
+          rect.setAttribute("fill", $('style').value === 'basic' ? $('bg').value : '#ffffff');
+          svg.appendChild(rect);
+          
+          // 将画布数据转换为图像并添加到 SVG
+          const img = document.createElementNS(svgNS, "image");
+          img.setAttribute("width", "100%");
+          img.setAttribute("height", "100%");
+          img.setAttribute("href", canvas.toDataURL("image/png"));
+          svg.appendChild(img);
+          
+          // 转换为字符串并下载
+          const serializer = new XMLSerializer();
+          const svgString = serializer.serializeToString(svg);
+          const blob = new Blob([svgString], {type: 'image/svg+xml'});
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.download = 'qrcode.svg';
+          link.href = url;
+          link.click();
+          URL.revokeObjectURL(url);
+        }
       } catch (err) {
         console.error("Error generating SVG:", err);
         alert("Error generating SVG: " + err.message);

@@ -1013,58 +1013,87 @@
   }
   
   // 基础二维码渲染
-  async function renderBasicQR(canvas, text, options) {
-    return QRCode.toCanvas(canvas, text, options);
+  function renderBasicQR(canvas, text, options) {
+    return new Promise((resolve, reject) => {
+      try {
+        const qr = new QRCode(canvas, {
+          text: text,
+          width: options.width,
+          height: options.width,
+          colorDark: options.color.dark,
+          colorLight: options.color.light,
+          correctLevel: QRCode.CorrectLevel[options.errorCorrectionLevel],
+          margin: options.margin
+        });
+        setTimeout(() => resolve(), 50); // 给QRCode一点时间渲染
+      } catch (err) {
+        reject(err);
+      }
+    });
   }
   
   // 渐变二维码渲染
-  async function renderGradientQR(canvas, text, options) {
+  function renderGradientQR(canvas, text, options) {
     const { errorCorrectionLevel, margin, width, from, to, type } = options;
     
-    // QRCode.js 没有直接暴露 create 方法，所以我们使用 toDataURL 来获取二维码数据
-    // 然后自己绘制渐变效果
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = tempCanvas.height = width;
-    
-    // 先生成普通二维码
-    await QRCode.toCanvas(tempCanvas, text, {
-      errorCorrectionLevel,
-      width,
-      margin
-    });
-    
-    // 获取二维码数据
-    const tempCtx = tempCanvas.getContext('2d');
-    const qrData = tempCtx.getImageData(0, 0, width, width);
-    const ctx = canvas.getContext('2d');
-    
-    // 创建渐变
-    let gradient;
-    if (type === 'linear') {
-      gradient = ctx.createLinearGradient(0, 0, width, width);
-    } else {
-      gradient = ctx.createRadialGradient(width/2, width/2, 0, width/2, width/2, width/2);
-    }
-    gradient.addColorStop(0, from);
-    gradient.addColorStop(1, to);
-    
-    // 清空画布
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, width, width);
-    
-    // 绘制二维码单元格，用渐变色替换黑色
-    ctx.fillStyle = gradient;
-    
-    // 遍历像素数据，找到黑色像素并用渐变色替代
-    for (let y = 0; y < width; y++) {
-      for (let x = 0; x < width; x++) {
-        const idx = (y * width + x) * 4;
-        // 判断是否是黑色像素 (RGB 值都很低)
-        if (qrData.data[idx] < 50 && qrData.data[idx + 1] < 50 && qrData.data[idx + 2] < 50) {
-          ctx.fillRect(x, y, 1, 1);
-        }
+    return new Promise((resolve, reject) => {
+      try {
+        // 创建基础二维码到画布
+        const qr = new QRCode(canvas, {
+          text: text,
+          width: width,
+          height: width,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel[errorCorrectionLevel],
+          margin: margin
+        });
+        
+        // 等待QR渲染完成
+        setTimeout(() => {
+          try {
+            // 获取画布上下文
+            const ctx = canvas.getContext('2d');
+            
+            // 获取当前二维码的图像数据
+            const qrData = ctx.getImageData(0, 0, width, width);
+            
+            // 创建渐变
+            let gradient;
+            if (type === 'linear') {
+              gradient = ctx.createLinearGradient(0, 0, width, width);
+            } else {
+              gradient = ctx.createRadialGradient(width/2, width/2, 0, width/2, width/2, width/2);
+            }
+            gradient.addColorStop(0, from);
+            gradient.addColorStop(1, to);
+            
+            // 清空画布
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, width);
+            
+            // 绘制二维码单元格，用渐变色替换黑色
+            ctx.fillStyle = gradient;
+            
+            // 遍历像素数据，找到黑色像素并用渐变色替代
+            for (let y = 0; y < width; y++) {
+              for (let x = 0; x < width; x++) {
+                const idx = (y * width + x) * 4;
+                // 判断是否是黑色像素 (RGB 值都很低)
+                if (qrData.data[idx] < 50 && qrData.data[idx + 1] < 50 && qrData.data[idx + 2] < 50) {
+                  ctx.fillRect(x, y, 1, 1);
+                }
+              }
+            }
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        }, 50); // 给一点时间让QRCode渲染
+      } catch (err) {
+        reject(err);
       }
-    }
+    });
     
     // 清空画布
     ctx.fillStyle = '#ffffff';
@@ -1084,91 +1113,106 @@
   }
   
   // 自定义样式二维码渲染
-  async function renderCustomStyleQR(canvas, text, options) {
+  function renderCustomStyleQR(canvas, text, options) {
     const { errorCorrectionLevel, margin, width, style, color } = options;
     
-    // 使用临时画布获取二维码数据
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = tempCanvas.height = width;
-    
-    // 先生成普通二维码
-    await QRCode.toCanvas(tempCanvas, text, {
-      errorCorrectionLevel,
-      width,
-      margin
-    });
-    
-    // 获取二维码数据
-    const tempCtx = tempCanvas.getContext('2d');
-    const qrData = tempCtx.getImageData(0, 0, width, width);
-    const ctx = canvas.getContext('2d');
-    
-    // 分析二维码结构，找出每个模块的位置
-    // 假设二维码是黑白的，我们可以通过扫描像素来找出模块
-    const modules = [];
-    const pixelSize = 1;
-    const moduleSize = Math.floor(width / 25); // 估计的模块大小，QR码通常是21x21到25x25模块
-    
-    // 扫描行
-    for (let y = 0; y < width; y += moduleSize) {
-      const row = [];
-      // 扫描列
-      for (let x = 0; x < width; x += moduleSize) {
-        // 检查该区域中心点是否是黑色
-        const centerX = x + Math.floor(moduleSize / 2);
-        const centerY = y + Math.floor(moduleSize / 2);
-        if (centerX < width && centerY < width) {
-          const idx = (centerY * width + centerX) * 4;
-          // 如果是黑色像素则标记为1
-          const isDark = qrData.data[idx] < 50 && qrData.data[idx + 1] < 50 && qrData.data[idx + 2] < 50;
-          row.push({isDark, x, y, size: moduleSize});
-        }
-      }
-      if (row.length > 0) {
-        modules.push(row);
-      }
-    }
-    
-    // 清空画布
-    ctx.fillStyle = color.light;
-    ctx.fillRect(0, 0, width, width);
-    
-    // 根据不同样式绘制二维码
-    ctx.fillStyle = color.dark;
-    
-    // 遍历检测到的模块
-    for (let r = 0; r < modules.length; r++) {
-      const row = modules[r];
-      for (let c = 0; c < row.length; c++) {
-        const module = row[c];
-        if (module.isDark) {
-          const x = module.x;
-          const y = module.y;
-          const cellSize = module.size;
-          
-          if (style === 'dots') {
-            ctx.beginPath();
-            ctx.arc(x + cellSize/2, y + cellSize/2, cellSize/2 * 0.85, 0, 2 * Math.PI);
-            ctx.fill();
-          } else if (style === 'rounded') {
-            // 简化圆角处理 - 每个模块都用圆角矩形
-            const radius = cellSize * 0.3;
-            
-            ctx.beginPath();
-            ctx.moveTo(x + radius, y);
-            ctx.lineTo(x + cellSize - radius, y);
-            ctx.quadraticCurveTo(x + cellSize, y, x + cellSize, y + radius);
-            ctx.lineTo(x + cellSize, y + cellSize - radius);
-            ctx.quadraticCurveTo(x + cellSize, y + cellSize, x + cellSize - radius, y + cellSize);
-            ctx.lineTo(x + radius, y + cellSize);
-            ctx.quadraticCurveTo(x, y + cellSize, x, y + cellSize - radius);
-            ctx.lineTo(x, y + radius);
-            ctx.quadraticCurveTo(x, y, x + radius, y);
-            ctx.fill();
+    return new Promise((resolve, reject) => {
+      try {
+        // 创建基础二维码到画布
+        const qr = new QRCode(canvas, {
+          text: text,
+          width: width,
+          height: width,
+          colorDark: color.dark,
+          colorLight: color.light,
+          correctLevel: QRCode.CorrectLevel[errorCorrectionLevel],
+          margin: margin
+        });
+        
+        // 等待QR渲染完成后应用样式
+        setTimeout(() => {
+          try {
+            if (style === 'dots' || style === 'rounded') {
+              // 获取画布上下文
+              const ctx = canvas.getContext('2d');
+              
+              // 获取当前二维码的图像数据
+              const qrData = ctx.getImageData(0, 0, width, width);
+              
+              // 分析二维码结构，找出每个模块的位置
+              const modules = [];
+              const moduleSize = Math.floor(width / 25); // 估计的模块大小
+              
+              // 扫描行
+              for (let y = 0; y < width; y += moduleSize) {
+                const row = [];
+                // 扫描列
+                for (let x = 0; x < width; x += moduleSize) {
+                  // 检查该区域中心点是否是黑色
+                  const centerX = x + Math.floor(moduleSize / 2);
+                  const centerY = y + Math.floor(moduleSize / 2);
+                  if (centerX < width && centerY < width) {
+                    const idx = (centerY * width + centerX) * 4;
+                    // 如果是黑色像素则标记为1
+                    const isDark = qrData.data[idx] < 50 && qrData.data[idx + 1] < 50 && qrData.data[idx + 2] < 50;
+                    row.push({isDark, x, y, size: moduleSize});
+                  }
+                }
+                if (row.length > 0) {
+                  modules.push(row);
+                }
+              }
+              
+              // 清空画布
+              ctx.fillStyle = color.light;
+              ctx.fillRect(0, 0, width, width);
+              
+              // 根据不同样式绘制二维码
+              ctx.fillStyle = color.dark;
+              
+              // 遍历检测到的模块
+              for (let r = 0; r < modules.length; r++) {
+                const row = modules[r];
+                for (let c = 0; c < row.length; c++) {
+                  const module = row[c];
+                  if (module.isDark) {
+                    const x = module.x;
+                    const y = module.y;
+                    const cellSize = module.size;
+                    
+                    if (style === 'dots') {
+                      ctx.beginPath();
+                      ctx.arc(x + cellSize/2, y + cellSize/2, cellSize/2 * 0.85, 0, 2 * Math.PI);
+                      ctx.fill();
+                    } else if (style === 'rounded') {
+                      // 简化圆角处理 - 每个模块都用圆角矩形
+                      const radius = cellSize * 0.3;
+                      
+                      ctx.beginPath();
+                      ctx.moveTo(x + radius, y);
+                      ctx.lineTo(x + cellSize - radius, y);
+                      ctx.quadraticCurveTo(x + cellSize, y, x + cellSize, y + radius);
+                      ctx.lineTo(x + cellSize, y + cellSize - radius);
+                      ctx.quadraticCurveTo(x + cellSize, y + cellSize, x + cellSize - radius, y + cellSize);
+                      ctx.lineTo(x + radius, y + cellSize);
+                      ctx.quadraticCurveTo(x, y + cellSize, x, y + cellSize - radius);
+                      ctx.lineTo(x, y + radius);
+                      ctx.quadraticCurveTo(x, y, x + radius, y);
+                      ctx.fill();
+                    }
+                  }
+                }
+              }
+            }
+            resolve();
+          } catch (err) {
+            reject(err);
           }
-        }
+        }, 50); // 给一点时间让QRCode渲染
+      } catch (err) {
+        reject(err);
       }
-    }
+    });
   }
   
   // 添加Logo到二维码中心
@@ -1529,9 +1573,23 @@
     // 保存到历史记录
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = 100;
-    QRCode.toCanvas(canvas, decodedText, { width: 100, margin: 1 }).then(() => {
-      saveToHistory(canvas.toDataURL('image/png'), decodedText);
-    });
+    try {
+      const qr = new QRCode(canvas, {
+        text: decodedText,
+        width: 100,
+        height: 100,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M,
+        margin: 1
+      });
+      // 给QRCode一点时间渲染后保存
+      setTimeout(() => {
+        saveToHistory(canvas.toDataURL('image/png'), decodedText);
+      }, 50);
+    } catch (err) {
+      console.error("Error generating QR for history:", err);
+    }
   }
   
   function onScanFailure(error) {

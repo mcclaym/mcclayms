@@ -1021,11 +1021,22 @@
   async function renderGradientQR(canvas, text, options) {
     const { errorCorrectionLevel, margin, width, from, to, type } = options;
     
-    // 先生成基础二维码数据
-    const qr = QRCode.create(text, { errorCorrectionLevel });
-    const size = qr.modules.size;
+    // QRCode.js 没有直接暴露 create 方法，所以我们使用 toDataURL 来获取二维码数据
+    // 然后自己绘制渐变效果
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = tempCanvas.height = width;
+    
+    // 先生成普通二维码
+    await QRCode.toCanvas(tempCanvas, text, {
+      errorCorrectionLevel,
+      width,
+      margin
+    });
+    
+    // 获取二维码数据
+    const tempCtx = tempCanvas.getContext('2d');
+    const qrData = tempCtx.getImageData(0, 0, width, width);
     const ctx = canvas.getContext('2d');
-    const cellSize = width / (size + 2 * margin);
     
     // 创建渐变
     let gradient;
@@ -1036,6 +1047,24 @@
     }
     gradient.addColorStop(0, from);
     gradient.addColorStop(1, to);
+    
+    // 清空画布
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, width);
+    
+    // 绘制二维码单元格，用渐变色替换黑色
+    ctx.fillStyle = gradient;
+    
+    // 遍历像素数据，找到黑色像素并用渐变色替代
+    for (let y = 0; y < width; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = (y * width + x) * 4;
+        // 判断是否是黑色像素 (RGB 值都很低)
+        if (qrData.data[idx] < 50 && qrData.data[idx + 1] < 50 && qrData.data[idx + 2] < 50) {
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+    }
     
     // 清空画布
     ctx.fillStyle = '#ffffff';
@@ -1058,11 +1087,47 @@
   async function renderCustomStyleQR(canvas, text, options) {
     const { errorCorrectionLevel, margin, width, style, color } = options;
     
-    // 先生成基础二维码数据
-    const qr = QRCode.create(text, { errorCorrectionLevel });
-    const size = qr.modules.size;
+    // 使用临时画布获取二维码数据
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = tempCanvas.height = width;
+    
+    // 先生成普通二维码
+    await QRCode.toCanvas(tempCanvas, text, {
+      errorCorrectionLevel,
+      width,
+      margin
+    });
+    
+    // 获取二维码数据
+    const tempCtx = tempCanvas.getContext('2d');
+    const qrData = tempCtx.getImageData(0, 0, width, width);
     const ctx = canvas.getContext('2d');
-    const cellSize = width / (size + 2 * margin);
+    
+    // 分析二维码结构，找出每个模块的位置
+    // 假设二维码是黑白的，我们可以通过扫描像素来找出模块
+    const modules = [];
+    const pixelSize = 1;
+    const moduleSize = Math.floor(width / 25); // 估计的模块大小，QR码通常是21x21到25x25模块
+    
+    // 扫描行
+    for (let y = 0; y < width; y += moduleSize) {
+      const row = [];
+      // 扫描列
+      for (let x = 0; x < width; x += moduleSize) {
+        // 检查该区域中心点是否是黑色
+        const centerX = x + Math.floor(moduleSize / 2);
+        const centerY = y + Math.floor(moduleSize / 2);
+        if (centerX < width && centerY < width) {
+          const idx = (centerY * width + centerX) * 4;
+          // 如果是黑色像素则标记为1
+          const isDark = qrData.data[idx] < 50 && qrData.data[idx + 1] < 50 && qrData.data[idx + 2] < 50;
+          row.push({isDark, x, y, size: moduleSize});
+        }
+      }
+      if (row.length > 0) {
+        modules.push(row);
+      }
+    }
     
     // 清空画布
     ctx.fillStyle = color.light;
@@ -1070,23 +1135,23 @@
     
     // 根据不同样式绘制二维码
     ctx.fillStyle = color.dark;
-    for (let row = 0; row < size; row++) {
-      for (let col = 0; col < size; col++) {
-        if (qr.modules.get(row, col)) {
-          const x = (col + margin) * cellSize;
-          const y = (row + margin) * cellSize;
+    
+    // 遍历检测到的模块
+    for (let r = 0; r < modules.length; r++) {
+      const row = modules[r];
+      for (let c = 0; c < row.length; c++) {
+        const module = row[c];
+        if (module.isDark) {
+          const x = module.x;
+          const y = module.y;
+          const cellSize = module.size;
           
           if (style === 'dots') {
             ctx.beginPath();
             ctx.arc(x + cellSize/2, y + cellSize/2, cellSize/2 * 0.85, 0, 2 * Math.PI);
             ctx.fill();
           } else if (style === 'rounded') {
-            // 检查相邻单元格以确定圆角位置
-            const isTop = row === 0 || !qr.modules.get(row - 1, col);
-            const isRight = col === size - 1 || !qr.modules.get(row, col + 1);
-            const isBottom = row === size - 1 || !qr.modules.get(row + 1, col);
-            const isLeft = col === 0 || !qr.modules.get(row, col - 1);
-            
+            // 简化圆角处理 - 每个模块都用圆角矩形
             const radius = cellSize * 0.3;
             
             ctx.beginPath();
@@ -1607,17 +1672,34 @@
       const canvas = $('qrCanvas');
       const text = $('text').value.trim();
       
-      // 创建一个临时的SVG二维码
-      QRCode.toString(text, {
-        errorCorrectionLevel: $('level').value,
-        type: 'svg',
-        margin: +$('margin').value,
-        width: +$('size').value,
-        color: {
-          dark: $('style').value === 'basic' ? $('fg').value : '#000000',
-          light: $('style').value === 'basic' ? $('bg').value : '#ffffff'
-        }
-      }).then(svgString => {
+      try {
+        // 创建一个简单的SVG
+        // QRCode.js 没有直接的 SVG 导出方法，所以我们使用一个变通方法
+        // 从现有的画布创建 SVG
+        const size = canvas.width;
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("width", size);
+        svg.setAttribute("height", size);
+        svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+        
+        // 添加一个白色背景矩形
+        const rect = document.createElementNS(svgNS, "rect");
+        rect.setAttribute("width", "100%");
+        rect.setAttribute("height", "100%");
+        rect.setAttribute("fill", "#ffffff");
+        svg.appendChild(rect);
+        
+        // 将画布数据转换为图像并添加到 SVG
+        const img = document.createElementNS(svgNS, "image");
+        img.setAttribute("width", "100%");
+        img.setAttribute("height", "100%");
+        img.setAttribute("href", canvas.toDataURL("image/png"));
+        svg.appendChild(img);
+        
+        // 转换为字符串并下载
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(svg);
         const blob = new Blob([svgString], {type: 'image/svg+xml'});
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -1625,7 +1707,10 @@
         link.href = url;
         link.click();
         URL.revokeObjectURL(url);
-      });
+      } catch (err) {
+        console.error("Error generating SVG:", err);
+        alert("Error generating SVG: " + err.message);
+      }
     });
     
     // 分享按钮

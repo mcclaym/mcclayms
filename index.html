@@ -3,155 +3,1681 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>QR Code</title>
+<title>QR Code Generator</title>
 
 <!-- 轻量级 QRCode.js -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<!-- 新增库 -->
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/dist/html5-qrcode.min.js"></script>
 
 <style>
-  :root{--primary:#1a73e8;--bg:#f7f9fc;--radius:6px;font-size:16px;}
+  :root{
+    --primary:#1a73e8;
+    --primary-dark:#1558b7;
+    --primary-light:#d2e3fc;
+    --bg:#f7f9fc;
+    --bg-dark:#222;
+    --text:#333;
+    --text-dark:#eee;
+    --border:#e0e0e0;
+    --radius:8px;
+    --transition:all 0.3s ease;
+    --shadow:0 2px 10px rgba(0,0,0,.1);
+    font-size:16px;
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    :root.auto-theme {
+      --bg:#222;
+      --text:#eee;
+      --border:#444;
+      --primary-light:#213a5c;
+    }
+  }
+  
+  :root.dark-theme {
+    --bg:#222;
+    --text:#eee;
+    --border:#444;
+    --primary-light:#213a5c;
+  }
+  
   *{box-sizing:border-box;font-family:"Segoe UI","PingFang SC",Arial,sans-serif;}
-  body{margin:0;padding:2rem;background:var(--bg);color:#333;}
-  .container{max-width:860px;margin:0 auto;background:#fff;border-radius:var(--radius);
-             box-shadow:0 2px 6px rgba(0,0,0,.06);padding:2rem;text-align:center;}
-  h1{margin-top:0;font-size:1.6rem;}
-  canvas{margin-top:1.5rem;border:8px solid #fff;background:#fff;}
-  footer{margin-top:2rem;font-size:.9rem;}
-  footer a{color:var(--primary);text-decoration:none;font-weight:600;}
-  .note{color:#666;font-size:.85rem;margin-top:.5rem;}
+  body{
+    margin:0;
+    padding:1rem;
+    background:var(--bg);
+    color:var(--text);
+    transition:var(--transition);
+  }
+  
+  .container{
+    max-width:1000px;
+    margin:0 auto;
+    background:#fff;
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:2rem;
+    transition:var(--transition);
+  }
+  
+  :root.dark-theme .container {
+    background:#333;
+  }
+  
+  h1{margin-top:0;font-size:1.8rem;font-weight:600;}
+  h2{font-size:1.4rem;margin-top:2rem;margin-bottom:1rem;}
+  
+  canvas{
+    margin:1.5rem auto;
+    border:8px solid #fff;
+    background:#fff;
+    max-width:100%;
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    transition:var(--transition);
+  }
+  
+  :root.dark-theme canvas {
+    border-color:#444;
+  }
+  
+  footer{
+    margin-top:2rem;
+    font-size:.9rem;
+    text-align:center;
+    padding:1rem;
+  }
+  
+  footer a{
+    color:var(--primary);
+    text-decoration:none;
+    font-weight:600;
+  }
+  
+  .note{
+    color:#666;
+    font-size:.85rem;
+    margin-top:.5rem;
+  }
+  
+  :root.dark-theme .note {
+    color:#aaa;
+  }
+  
   .hidden{display:none;}
-  label,input,select{margin:.25rem 0;}
-  .fields{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:1rem;}
-  .fields>*{flex:1 1 160px;}
-  button{background:var(--primary);color:#fff;border:none;padding:.6rem 1.2rem;
-         border-radius:var(--radius);cursor:pointer;font-size:1rem;}
-  button:disabled{opacity:.6;cursor:not-allowed;}
+  
+  label{
+    display:block;
+    margin-bottom:.25rem;
+    font-weight:500;
+  }
+  
+  input, select{
+    width:100%;
+    padding:.6rem;
+    border-radius:var(--radius);
+    border:1px solid var(--border);
+    background:transparent;
+    color:var(--text);
+    font-size:1rem;
+    transition:var(--transition);
+  }
+  
+  input:focus, select:focus{
+    outline:none;
+    border-color:var(--primary);
+    box-shadow:0 0 0 2px var(--primary-light);
+  }
+  
+  .fields{
+    display:flex;
+    gap:1rem;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-top:1rem;
+  }
+  
+  .fields>*{
+    flex:1 1 160px;
+  }
+  
+  .field-group {
+    margin-bottom:1rem;
+  }
+  
+  button{
+    background:var(--primary);
+    color:#fff;
+    border:none;
+    padding:.7rem 1.2rem;
+    border-radius:var(--radius);
+    cursor:pointer;
+    font-size:1rem;
+    font-weight:500;
+    transition:var(--transition);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+  }
+  
+  button:hover:not(:disabled){
+    background:var(--primary-dark);
+    box-shadow:0 2px 5px rgba(0,0,0,.2);
+    transform:translateY(-1px);
+  }
+  
+  button:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+  }
+  
+  button svg {
+    width:18px;
+    height:18px;
+  }
+  
+  .btn-group {
+    display:flex;
+    gap:.5rem;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin:1rem 0;
+  }
+  
+  .btn-secondary {
+    background:#f0f0f0;
+    color:#333;
+  }
+  
+  :root.dark-theme .btn-secondary {
+    background:#444;
+    color:#eee;
+  }
+  
+  .btn-secondary:hover:not(:disabled) {
+    background:#e0e0e0;
+  }
+  
+  :root.dark-theme .btn-secondary:hover:not(:disabled) {
+    background:#555;
+  }
+  
+  .tabs {
+    display:flex;
+    border-bottom:1px solid var(--border);
+    margin-bottom:1.5rem;
+    overflow-x:auto;
+  }
+  
+  .tab {
+    padding:.75rem 1.25rem;
+    cursor:pointer;
+    border-bottom:2px solid transparent;
+    white-space:nowrap;
+    font-weight:500;
+  }
+  
+  .tab.active {
+    color:var(--primary);
+    border-bottom-color:var(--primary);
+  }
+  
+  .tab-content {
+    display:none;
+  }
+  
+  .tab-content.active {
+    display:block;
+  }
+  
+  .flex {
+    display:flex;
+    gap:1rem;
+  }
+  
+  .col-2 {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+    gap:2rem;
+    align-items:center;
+  }
+  
+  .qr-options {
+    padding:1.5rem;
+    border-radius:var(--radius);
+    background:#f8f9fa;
+    border:1px solid var(--border);
+    margin-bottom:1.5rem;
+  }
+  
+  :root.dark-theme .qr-options {
+    background:#2a2a2a;
+  }
+  
+  .history-item {
+    padding:1rem;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    margin-bottom:1rem;
+    display:flex;
+    align-items:center;
+    gap:1rem;
+  }
+  
+  .history-item img {
+    width:80px;
+    height:80px;
+    object-fit:contain;
+    border-radius:var(--radius);
+  }
+  
+  .history-item-content {
+    flex:1;
+  }
+  
+  .history-item-actions {
+    display:flex;
+    gap:.5rem;
+  }
+  
+  .theme-toggle {
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    background:var(--primary);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow:0 2px 10px rgba(0,0,0,.2);
+    z-index:1000;
+    transition:var(--transition);
+  }
+  
+  .theme-toggle:hover {
+    transform:scale(1.1);
+  }
+  
+  @media (max-width:768px) {
+    .container {
+      padding:1.5rem;
+    }
+    
+    .col-2 {
+      grid-template-columns:1fr;
+    }
+  }
+  
+  .dropzone {
+    border:2px dashed var(--border);
+    border-radius:var(--radius);
+    padding:2rem 1rem;
+    text-align:center;
+    cursor:pointer;
+    transition:var(--transition);
+    margin-bottom:1rem;
+  }
+  
+  .dropzone:hover {
+    border-color:var(--primary);
+    background:var(--primary-light);
+  }
+  
+  .preview-container {
+    display:flex;
+    flex-wrap:wrap;
+    gap:1rem;
+    margin-top:1rem;
+  }
+  
+  .template-item {
+    border:2px solid transparent;
+    padding:.5rem;
+    border-radius:var(--radius);
+    cursor:pointer;
+    transition:var(--transition);
+  }
+  
+  .template-item:hover {
+    transform:translateY(-3px);
+    box-shadow:var(--shadow);
+  }
+  
+  .template-item.active {
+    border-color:var(--primary);
+    background:var(--primary-light);
+  }
+  
+  .template-item img {
+    width:100px;
+    height:100px;
+    object-fit:contain;
+  }
+  
+  :root.dark-theme input, 
+  :root.dark-theme select {
+    border-color:#444;
+    color:#eee;
+  }
+  
+  .gradient-preview {
+    width:100%;
+    height:30px;
+    border-radius:var(--radius);
+    margin-top:.5rem;
+  }
+  
+  #scanner {
+    width:100%;
+    max-width:400px;
+    margin:0 auto;
+  }
+  
+  .message {
+    padding:1rem;
+    border-radius:var(--radius);
+    margin:1rem 0;
+    border-left:4px solid;
+  }
+  
+  .message.success {
+    background:#e6f7ed;
+    border-color:#00c853;
+    color:#00783e;
+  }
+  
+  :root.dark-theme .message.success {
+    background:#063119;
+    color:#4cd57d;
+  }
+  
+  .message.error {
+    background:#fdeded;
+    border-color:#d32f2f;
+    color:#7f1d1d;
+  }
+  
+  :root.dark-theme .message.error {
+    background:#2c0b0b;
+    color:#f59c9c;
+  }
+  
+  .logo-preview {
+    position:relative;
+    width:80px;
+    height:80px;
+    margin:1rem auto;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  
+  .logo-preview img {
+    width:100%;
+    height:100%;
+    object-fit:contain;
+  }
 </style>
 </head>
 <body>
 <div class="container">
   <h1 id="title">QR Code Generator</h1>
 
-  <!-- Canvas 区域 -->
-  <canvas id="qrCanvas" width="260" height="260" class="hidden"></canvas>
-
-  <!-- 可选交互表单（用户无参数时可手动生成/调整） -->
-  <form id="form" class="fields">
-    <div><label data-i18n="inputLabel">Content</label><input type="text" id="text" placeholder="https://chatgpt.org.uk"></div>
-    <div><label data-i18n="size">Size (px)</label><input type="number" id="size" value="260" min="120" max="1000"></div>
-    <div><label data-i18n="margin">Margin (px)</label><input type="number" id="margin" value="4" min="0" max="30"></div>
-    <div><label data-i18n="level">Level</label>
-      <select id="level">
-        <option>L</option><option selected>M</option><option>Q</option><option>H</option>
+  <!-- 标签页 -->
+  <div class="tabs">
+    <div class="tab active" data-tab="generate" data-i18n="tab_generate">生成</div>
+    <div class="tab" data-tab="scan" data-i18n="tab_scan">扫描</div>
+    <div class="tab" data-tab="history" data-i18n="tab_history">历史</div>
+    <div class="tab" data-tab="settings" data-i18n="tab_settings">设置</div>
+  </div>
+  
+  <!-- 生成二维码标签页 -->
+  <div class="tab-content active" id="tab-generate">
+    <div class="col-2">
+      <div>
+        <!-- Canvas 区域 -->
+        <canvas id="qrCanvas" width="260" height="260" class="hidden"></canvas>
+        
+        <!-- 添加一个在二维码生成前显示的提示 -->
+        <div id="qrPlaceholder" class="dropzone">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <rect x="7" y="7" width="3" height="3"></rect>
+            <rect x="14" y="7" width="3" height="3"></rect>
+            <rect x="7" y="14" width="3" height="3"></rect>
+            <rect x="14" y="14" width="3" height="3"></rect>
+          </svg>
+          <p data-i18n="placeholder">输入内容生成二维码</p>
+        </div>
+        
+        <div class="btn-group">
+          <button type="button" id="dlBtn" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span data-i18n="download">下载 PNG</span>
+          </button>
+          <button type="button" id="svgBtn" disabled class="btn-secondary">
+            <span data-i18n="downloadSVG">下载 SVG</span>
+          </button>
+          <button type="button" id="shareBtn" disabled class="btn-secondary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+            <span data-i18n="share">分享</span>
+          </button>
+        </div>
+      </div>
+      
+      <div>
+        <!-- 可选交互表单（用户无参数时可手动生成/调整） -->
+        <form id="form">
+          <div class="field-group">
+            <label data-i18n="inputLabel">输入内容</label>
+            <input type="text" id="text" placeholder="https://chatgpt.org.uk">
+          </div>
+          
+          <div class="qr-options">
+            <h2 data-i18n="appearance">外观设置</h2>
+            <div class="fields">
+              <div class="field-group">
+                <label data-i18n="size">尺寸 (px)</label>
+                <input type="number" id="size" value="260" min="120" max="1000">
+              </div>
+              <div class="field-group">
+                <label data-i18n="margin">边距 (px)</label>
+                <input type="number" id="margin" value="4" min="0" max="30">
+              </div>
+              <div class="field-group">
+                <label data-i18n="level">纠错级别</label>
+                <select id="level">
+                  <option>L</option><option selected>M</option><option>Q</option><option>H</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="field-group">
+              <label data-i18n="style">样式</label>
+              <select id="style">
+                <option value="basic" selected data-i18n="style_basic">基础</option>
+                <option value="gradient" data-i18n="style_gradient">渐变</option>
+                <option value="dots" data-i18n="style_dots">圆点</option>
+                <option value="rounded" data-i18n="style_rounded">圆角</option>
+              </select>
+            </div>
+            
+            <div id="basicStyle" class="style-options">
+              <div class="fields">
+                <div class="field-group">
+                  <label data-i18n="fg">前景色</label>
+                  <input type="color" id="fg" value="#000000">
+                </div>
+                <div class="field-group">
+                  <label data-i18n="bg">背景色</label>
+                  <input type="color" id="bg" value="#ffffff">
+                </div>
+              </div>
+            </div>
+            
+            <div id="gradientStyle" class="style-options hidden">
+              <div class="fields">
+                <div class="field-group">
+                  <label data-i18n="gradientFrom">渐变起始色</label>
+                  <input type="color" id="gradientFrom" value="#4776E6">
+                </div>
+                <div class="field-group">
+                  <label data-i18n="gradientTo">渐变结束色</label>
+                  <input type="color" id="gradientTo" value="#8E54E9">
+                </div>
+              </div>
+              <div class="field-group">
+                <label data-i18n="gradientType">渐变类型</label>
+                <select id="gradientType">
+                  <option value="linear" data-i18n="linear">线性</option>
+                  <option value="radial" data-i18n="radial">径向</option>
+                </select>
+              </div>
+              <div id="gradientPreview" class="gradient-preview"></div>
+            </div>
+            
+            <div class="field-group">
+              <label data-i18n="logo">LOGO设置</label>
+              <div class="dropzone" id="logoDropzone">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <p data-i18n="dropLogo">拖放或点击上传 LOGO</p>
+              </div>
+              <input type="file" id="logoFile" class="hidden" accept="image/*">
+              
+              <div id="logoPreviewContainer" class="hidden">
+                <div class="logo-preview">
+                  <img id="logoPreview" src="" alt="Logo preview">
+                </div>
+                <button type="button" id="removeLogo" class="btn-secondary">
+                  <span data-i18n="removeLogo">移除 LOGO</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="field-group" style="text-align:center;">
+            <button type="submit" id="genBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 7 A 9 9 0 1 1 3 7 A 9 9 0 1 1 21 7 Z"></path>
+                <path d="M8 12h8"></path>
+                <path d="M12 8v8"></path>
+              </svg>
+              <span data-i18n="generate">生成二维码</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <div class="note" id="help" data-i18n="note">
+      提示：在网址后加参数（如 ?text=你好）可直接生成二维码
+    </div>
+  </div>
+  
+  <!-- 扫描二维码标签页 -->
+  <div class="tab-content" id="tab-scan">
+    <div id="scanner"></div>
+    <div id="scanResult" class="hidden message success"></div>
+    <div class="btn-group">
+      <button id="startScanBtn" type="button">
+        <span data-i18n="startScan">开始扫描</span>
+      </button>
+      <button id="stopScanBtn" type="button" class="btn-secondary" disabled>
+        <span data-i18n="stopScan">停止扫描</span>
+      </button>
+    </div>
+    <p class="note" data-i18n="scanNote">请允许访问摄像头以扫描二维码</p>
+  </div>
+  
+  <!-- 历史记录标签页 -->
+  <div class="tab-content" id="tab-history">
+    <div id="historyList">
+      <!-- 历史记录将通过 JS 动态添加 -->
+    </div>
+    <div class="btn-group">
+      <button id="clearHistoryBtn" type="button" class="btn-secondary">
+        <span data-i18n="clearHistory">清空历史</span>
+      </button>
+      <button id="exportHistoryBtn" type="button" class="btn-secondary">
+        <span data-i18n="exportHistory">导出历史</span>
+      </button>
+    </div>
+  </div>
+  
+  <!-- 设置标签页 -->
+  <div class="tab-content" id="tab-settings">
+    <div class="field-group">
+      <label data-i18n="language">语言</label>
+      <select id="langSelector">
+        <option value="zh" selected>中文</option>
+        <option value="en">English</option>
       </select>
     </div>
-    <div><label data-i18n="fg">FG</label><input type="color" id="fg" value="#000000"></div>
-    <div><label data-i18n="bg">BG</label><input type="color" id="bg" value="#ffffff"></div>
-    <div style="flex:1 1 100%;text-align:center;">
-      <button type="submit" id="genBtn">Generate</button>
-      <button type="button" id="dlBtn" disabled data-i18n="download">Download PNG</button>
+    
+    <div class="field-group">
+      <label data-i18n="themeMode">主题模式</label>
+      <select id="themeSelector">
+        <option value="auto" data-i18n="themeAuto">自动（跟随系统）</option>
+        <option value="light" data-i18n="themeLight">浅色</option>
+        <option value="dark" data-i18n="themeDark">深色</option>
+      </select>
     </div>
-  </form>
-
-  <p class="note" id="help" data-i18n="note">
-    Tip: Attach parameters to the URL (e.g. <code>?text=Hello</code>) to auto-render.
-  </p>
+    
+    <div class="field-group">
+      <label data-i18n="historyLimit">历史记录数量限制</label>
+      <input type="number" id="historyLimit" value="10" min="0" max="100">
+    </div>
+    
+    <div class="btn-group">
+      <button id="saveSettingsBtn" type="button">
+        <span data-i18n="saveSettings">保存设置</span>
+      </button>
+      <button id="resetSettingsBtn" type="button" class="btn-secondary">
+        <span data-i18n="resetSettings">重置设置</span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <footer>
   &copy; 2025 <a href="https://chatgpt.org.uk" target="_blank" rel="noopener">chatgpt.org.uk</a>
 </footer>
 
+<!-- 主题切换按钮 -->
+<div class="theme-toggle" id="themeToggle">
+  <svg id="themeSunIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="5"></circle>
+    <line x1="12" y1="1" x2="12" y2="3"></line>
+    <line x1="12" y1="21" x2="12" y2="23"></line>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+    <line x1="1" y1="12" x2="3" y2="12"></line>
+    <line x1="21" y1="12" x2="23" y2="12"></line>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+  </svg>
+  <svg id="themeMoonIcon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</div>
+
 <script>
 (() => {
-  /* ---------- 1. 简易 i18n ---------- */
+  /* ---------- 1. 增强 i18n ---------- */
   const dict = {
-    en:{title:'QR Code Generator',inputLabel:'Content',size:'Size (px)',margin:'Margin (px)',
-        level:'Level',fg:'Foreground',bg:'Background',download:'Download PNG',
-        note:'Tip: Attach parameters to the URL (e.g. ?text=Hello) to auto-render.'},
-    zh:{title:'二维码生成器',inputLabel:'输入内容',size:'尺寸 (px)',margin:'边距 (px)',
-        level:'纠错级',fg:'前景色',bg:'背景色',download:'下载 PNG',
-        note:'提示：在网址后加参数（如 ?text=你好）可直接生成二维码'}
+    en:{
+      title:'QR Code Generator',
+      inputLabel:'Content',
+      size:'Size (px)',
+      margin:'Margin (px)',
+      level:'Error Correction Level',
+      fg:'Foreground',
+      bg:'Background',
+      download:'Download PNG',
+      downloadSVG:'Download SVG',
+      share:'Share',
+      generate:'Generate QR',
+      style:'Style',
+      style_basic:'Basic',
+      style_gradient:'Gradient',
+      style_dots:'Dots',
+      style_rounded:'Rounded',
+      appearance:'Appearance Settings',
+      gradientFrom:'Gradient Start',
+      gradientTo:'Gradient End',
+      gradientType:'Gradient Type',
+      linear:'Linear',
+      radial:'Radial',
+      logo:'Logo Settings',
+      dropLogo:'Drop or click to upload logo',
+      removeLogo:'Remove Logo',
+      note:'Tip: Attach parameters to the URL (e.g. ?text=Hello) to auto-render.',
+      tab_generate:'Generate',
+      tab_scan:'Scan',
+      tab_history:'History',
+      tab_settings:'Settings',
+      startScan:'Start Scan',
+      stopScan:'Stop Scan',
+      scanNote:'Please allow camera access to scan QR codes',
+      scanResult:'Scan Result',
+      scanSuccess:'QR Code scanned successfully:',
+      scanError:'Error scanning QR code:',
+      clearHistory:'Clear History',
+      exportHistory:'Export History',
+      importHistory:'Import History',
+      language:'Language',
+      themeMode:'Theme Mode',
+      themeAuto:'Auto (Follow System)',
+      themeLight:'Light',
+      themeDark:'Dark',
+      historyLimit:'History Limit',
+      saveSettings:'Save Settings',
+      resetSettings:'Reset Settings',
+      placeholder:'Enter content to generate QR code',
+      qrSaved:'QR code saved to history',
+      historyClear:'History cleared',
+      noHistory:'No history records',
+      historyTime:'Generated at',
+      historyContent:'Content',
+      historyOpen:'Open',
+      historyDelete:'Delete',
+      settingsSaved:'Settings saved',
+      settingsReset:'Settings reset to defaults',
+      urlCopied:'URL copied to clipboard'
+    },
+    zh:{
+      title:'二维码生成器',
+      inputLabel:'输入内容',
+      size:'尺寸 (px)',
+      margin:'边距 (px)',
+      level:'纠错级别',
+      fg:'前景色',
+      bg:'背景色',
+      download:'下载 PNG',
+      downloadSVG:'下载 SVG',
+      share:'分享',
+      generate:'生成二维码',
+      style:'样式',
+      style_basic:'基础',
+      style_gradient:'渐变',
+      style_dots:'圆点',
+      style_rounded:'圆角',
+      appearance:'外观设置',
+      gradientFrom:'渐变起始色',
+      gradientTo:'渐变结束色',
+      gradientType:'渐变类型',
+      linear:'线性',
+      radial:'径向',
+      logo:'LOGO设置',
+      dropLogo:'拖放或点击上传 LOGO',
+      removeLogo:'移除 LOGO',
+      note:'提示：在网址后加参数（如 ?text=你好）可直接生成二维码',
+      tab_generate:'生成',
+      tab_scan:'扫描',
+      tab_history:'历史',
+      tab_settings:'设置',
+      startScan:'开始扫描',
+      stopScan:'停止扫描',
+      scanNote:'请允许访问摄像头以扫描二维码',
+      scanResult:'扫描结果',
+      scanSuccess:'二维码扫描成功：',
+      scanError:'扫描二维码出错：',
+      clearHistory:'清空历史',
+      exportHistory:'导出历史',
+      importHistory:'导入历史',
+      language:'语言',
+      themeMode:'主题模式',
+      themeAuto:'自动（跟随系统）',
+      themeLight:'浅色',
+      themeDark:'深色',
+      historyLimit:'历史记录数量限制',
+      saveSettings:'保存设置',
+      resetSettings:'重置设置',
+      placeholder:'输入内容生成二维码',
+      qrSaved:'二维码已保存到历史记录',
+      historyClear:'历史记录已清空',
+      noHistory:'暂无历史记录',
+      historyTime:'生成于',
+      historyContent:'内容',
+      historyOpen:'打开',
+      historyDelete:'删除',
+      settingsSaved:'设置已保存',
+      settingsReset:'设置已重置为默认值',
+      urlCopied:'链接已复制到剪贴板'
+    }
   };
-  const lang = (navigator.language||'en').toLowerCase().startsWith('zh')?'zh':'en';
-  document.documentElement.lang = lang;
-  document.getElementById('title').textContent = dict[lang].title;
-  document.querySelectorAll('[data-i18n]').forEach(el=>{
-    const key = el.dataset.i18n;
-    el.textContent = dict[lang][key]||el.textContent;
-  });
 
   /* ---------- 2. 工具函数 ---------- */
   const $ = id => document.getElementById(id);
   const qs = new URLSearchParams(location.search);
   const hex = v => v.replace(/^#/, '');
   function param(name, def){return qs.get(name) ?? def;}
-
-  /* ---------- 3. 生成二维码主函数 ---------- */
-  async function render(cfg){
-    const {text,size,margin,level,fg,bg} = cfg;
-    if(!text){alert(lang==='zh'?'请输入内容':'Please enter content');return;}
+  
+  // 显示消息
+  function showMessage(container, message, type = 'success') {
+    container.textContent = message;
+    container.className = `message ${type}`;
+    container.classList.remove('hidden');
+    setTimeout(() => {
+      container.classList.add('hidden');
+    }, 5000);
+  }
+  
+  /* ---------- 3. 初始化设置 ---------- */
+  // 从本地存储加载设置或使用默认值
+  const defaultSettings = {
+    lang: (navigator.language||'en').toLowerCase().startsWith('zh') ? 'zh' : 'en',
+    theme: 'auto',
+    historyLimit: 10
+  };
+  
+  let settings = JSON.parse(localStorage.getItem('qr_settings')) || defaultSettings;
+  let history = JSON.parse(localStorage.getItem('qr_history')) || [];
+  
+  // 应用语言设置
+  function applyLanguage(lang) {
+    document.documentElement.lang = lang;
+    $('title').textContent = dict[lang].title;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (dict[lang][key]) {
+        el.textContent = dict[lang][key];
+      }
+    });
+  }
+  
+  // 应用主题设置
+  function applyTheme(theme) {
+    const root = document.documentElement;
+    root.classList.remove('dark-theme', 'auto-theme');
+    
+    if (theme === 'dark') {
+      root.classList.add('dark-theme');
+      $('themeSunIcon').classList.add('hidden');
+      $('themeMoonIcon').classList.remove('hidden');
+    } else if (theme === 'auto') {
+      root.classList.add('auto-theme');
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (isDark) {
+        $('themeSunIcon').classList.add('hidden');
+        $('themeMoonIcon').classList.remove('hidden');
+      } else {
+        $('themeSunIcon').classList.remove('hidden');
+        $('themeMoonIcon').classList.add('hidden');
+      }
+    } else {
+      $('themeSunIcon').classList.remove('hidden');
+      $('themeMoonIcon').classList.add('hidden');
+    }
+  }
+  
+  // 初始化设置
+  function initSettings() {
+    $('langSelector').value = settings.lang;
+    $('themeSelector').value = settings.theme;
+    $('historyLimit').value = settings.historyLimit;
+    
+    applyLanguage(settings.lang);
+    applyTheme(settings.theme);
+  }
+  
+  // 保存设置
+  function saveSettings() {
+    settings = {
+      lang: $('langSelector').value,
+      theme: $('themeSelector').value,
+      historyLimit: parseInt($('historyLimit').value) || 10
+    };
+    
+    localStorage.setItem('qr_settings', JSON.stringify(settings));
+    applyLanguage(settings.lang);
+    applyTheme(settings.theme);
+    
+    showMessage($('scanResult'), dict[settings.lang].settingsSaved);
+    $('scanResult').classList.remove('hidden');
+  }
+  
+  // 重置设置
+  function resetSettings() {
+    settings = {...defaultSettings};
+    localStorage.setItem('qr_settings', JSON.stringify(settings));
+    initSettings();
+    
+    showMessage($('scanResult'), dict[settings.lang].settingsReset);
+    $('scanResult').classList.remove('hidden');
+  }
+  
+  /* ---------- 4. 标签页切换 ---------- */
+  function initTabs() {
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        
+        tab.classList.add('active');
+        $(`tab-${tab.dataset.tab}`).classList.add('active');
+      });
+    });
+  }
+  
+  /* ---------- 5. 主题切换按钮 ---------- */
+  function initThemeToggle() {
+    $('themeToggle').addEventListener('click', () => {
+      if (settings.theme === 'light') {
+        settings.theme = 'dark';
+      } else if (settings.theme === 'dark') {
+        settings.theme = 'auto';
+      } else {
+        settings.theme = 'light';
+      }
+      
+      $('themeSelector').value = settings.theme;
+      applyTheme(settings.theme);
+      localStorage.setItem('qr_settings', JSON.stringify(settings));
+    });
+    
+    // 监听系统主题变化
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      if (settings.theme === 'auto') {
+        applyTheme('auto');
+      }
+    });
+  }
+  
+  /* ---------- 6. 生成二维码 ---------- */
+  // 创建二维码渲染功能
+  async function renderQR(cfg) {
+    const {text, size, margin, level, style, ...styleOptions} = cfg;
+    if(!text) {
+      alert(settings.lang === 'zh' ? '请输入内容' : 'Please enter content');
+      return;
+    }
+    
     const canvas = $('qrCanvas');
     canvas.width = canvas.height = size;
-    await QRCode.toCanvas(canvas, text, {
-      errorCorrectionLevel: level,
-      margin, width:size,
-      color:{dark:'#'+hex(fg), light:'#'+hex(bg)}
-    });
+    
+    // 隐藏占位符，显示画布
+    $('qrPlaceholder').classList.add('hidden');
     canvas.classList.remove('hidden');
-    $('dlBtn').disabled = false;
+    
+    // 根据不同样式选择不同的渲染方法
+    try {
+      if (style === 'basic') {
+        await renderBasicQR(canvas, text, {
+          errorCorrectionLevel: level,
+          margin, width: size,
+          color: {
+            dark: '#' + hex(styleOptions.fg),
+            light: '#' + hex(styleOptions.bg)
+          }
+        });
+      } else if (style === 'gradient') {
+        await renderGradientQR(canvas, text, {
+          errorCorrectionLevel: level,
+          margin, width: size,
+          from: styleOptions.gradientFrom,
+          to: styleOptions.gradientTo,
+          type: styleOptions.gradientType
+        });
+      } else if (style === 'dots' || style === 'rounded') {
+        await renderCustomStyleQR(canvas, text, {
+          errorCorrectionLevel: level,
+          margin, width: size,
+          style: style,
+          color: {
+            dark: '#' + hex(styleOptions.fg),
+            light: '#' + hex(styleOptions.bg)
+          }
+        });
+      }
+      
+      // 如果有Logo，添加到二维码中心
+      if (styleOptions.logo) {
+        addLogoToQR(canvas, styleOptions.logo);
+      }
+      
+      // 启用下载按钮
+      $('dlBtn').disabled = false;
+      $('svgBtn').disabled = false;
+      $('shareBtn').disabled = false;
+      
+      // 保存到历史记录
+      saveToHistory(canvas.toDataURL('image/png'), text);
+      
+    } catch (err) {
+      console.error('Error generating QR code:', err);
+      alert('Error: ' + err.message);
+    }
   }
-
-  /* ---------- 4. 若 URL 含参数则自动生成 ---------- */
-  const autoText = param('text', '').trim();
-  if(autoText){
-    const cfg = {
-      text: decodeURIComponent(autoText),
-      size: +param('size',260),
-      margin:+param('margin',4),
-      level: (param('level','M')||'M').toUpperCase(),
-      fg: '#'+param('fg','000000'),
-      bg: '#'+param('bg','ffffff')
+  
+  // 基础二维码渲染
+  async function renderBasicQR(canvas, text, options) {
+    return QRCode.toCanvas(canvas, text, options);
+  }
+  
+  // 渐变二维码渲染
+  async function renderGradientQR(canvas, text, options) {
+    const { errorCorrectionLevel, margin, width, from, to, type } = options;
+    
+    // 先生成基础二维码数据
+    const qr = QRCode.create(text, { errorCorrectionLevel });
+    const size = qr.modules.size;
+    const ctx = canvas.getContext('2d');
+    const cellSize = width / (size + 2 * margin);
+    
+    // 创建渐变
+    let gradient;
+    if (type === 'linear') {
+      gradient = ctx.createLinearGradient(0, 0, width, width);
+    } else {
+      gradient = ctx.createRadialGradient(width/2, width/2, 0, width/2, width/2, width/2);
+    }
+    gradient.addColorStop(0, from);
+    gradient.addColorStop(1, to);
+    
+    // 清空画布
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, width);
+    
+    // 绘制二维码单元格
+    ctx.fillStyle = gradient;
+    for (let row = 0; row < size; row++) {
+      for (let col = 0; col < size; col++) {
+        if (qr.modules.get(row, col)) {
+          const x = (col + margin) * cellSize;
+          const y = (row + margin) * cellSize;
+          ctx.fillRect(x, y, cellSize, cellSize);
+        }
+      }
+    }
+  }
+  
+  // 自定义样式二维码渲染
+  async function renderCustomStyleQR(canvas, text, options) {
+    const { errorCorrectionLevel, margin, width, style, color } = options;
+    
+    // 先生成基础二维码数据
+    const qr = QRCode.create(text, { errorCorrectionLevel });
+    const size = qr.modules.size;
+    const ctx = canvas.getContext('2d');
+    const cellSize = width / (size + 2 * margin);
+    
+    // 清空画布
+    ctx.fillStyle = color.light;
+    ctx.fillRect(0, 0, width, width);
+    
+    // 根据不同样式绘制二维码
+    ctx.fillStyle = color.dark;
+    for (let row = 0; row < size; row++) {
+      for (let col = 0; col < size; col++) {
+        if (qr.modules.get(row, col)) {
+          const x = (col + margin) * cellSize;
+          const y = (row + margin) * cellSize;
+          
+          if (style === 'dots') {
+            ctx.beginPath();
+            ctx.arc(x + cellSize/2, y + cellSize/2, cellSize/2 * 0.85, 0, 2 * Math.PI);
+            ctx.fill();
+          } else if (style === 'rounded') {
+            // 检查相邻单元格以确定圆角位置
+            const isTop = row === 0 || !qr.modules.get(row - 1, col);
+            const isRight = col === size - 1 || !qr.modules.get(row, col + 1);
+            const isBottom = row === size - 1 || !qr.modules.get(row + 1, col);
+            const isLeft = col === 0 || !qr.modules.get(row, col - 1);
+            
+            const radius = cellSize * 0.3;
+            
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + cellSize - radius, y);
+            ctx.quadraticCurveTo(x + cellSize, y, x + cellSize, y + radius);
+            ctx.lineTo(x + cellSize, y + cellSize - radius);
+            ctx.quadraticCurveTo(x + cellSize, y + cellSize, x + cellSize - radius, y + cellSize);
+            ctx.lineTo(x + radius, y + cellSize);
+            ctx.quadraticCurveTo(x, y + cellSize, x, y + cellSize - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.fill();
+          }
+        }
+      }
+    }
+  }
+  
+  // 添加Logo到二维码中心
+  function addLogoToQR(canvas, logoSrc) {
+    return new Promise((resolve, reject) => {
+      const ctx = canvas.getContext('2d');
+      const logo = new Image();
+      
+      logo.onload = () => {
+        try {
+          // 计算Logo尺寸和位置（不超过二维码的20%）
+          const size = canvas.width * 0.2;
+          const x = (canvas.width - size) / 2;
+          const y = (canvas.height - size) / 2;
+          
+          // 在Logo背景绘制白色圆形
+          ctx.fillStyle = 'white';
+          ctx.beginPath();
+          ctx.arc(x + size/2, y + size/2, size/2 + 5, 0, 2 * Math.PI);
+          ctx.fill();
+          
+          // 绘制Logo
+          ctx.drawImage(logo, x, y, size, size);
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      };
+      
+      logo.onerror = reject;
+      logo.src = logoSrc;
+    });
+  }
+  
+  // 保存到历史记录
+  function saveToHistory(dataURL, text) {
+    const now = new Date();
+    const item = {
+      id: now.getTime(),
+      date: now.toISOString(),
+      text,
+      dataURL
     };
-    // 填充表单以便用户二次修改
-    $('text').value   = cfg.text;
-    $('size').value   = cfg.size;
-    $('margin').value = cfg.margin;
-    $('level').value  = cfg.level;
-    $('fg').value     = cfg.fg;
-    $('bg').value     = cfg.bg;
-    render(cfg);
+    
+    history.unshift(item);
+    
+    // 限制历史记录数量
+    if (history.length > settings.historyLimit) {
+      history = history.slice(0, settings.historyLimit);
+    }
+    
+    localStorage.setItem('qr_history', JSON.stringify(history));
+    updateHistoryList();
+    
+    // 显示保存成功消息
+    showMessage($('scanResult'), dict[settings.lang].qrSaved);
+  }
+  
+  /* ---------- 7. 样式切换处理 ---------- */
+  function initStyleSwitcher() {
+    $('style').addEventListener('change', () => {
+      const style = $('style').value;
+      
+      // 隐藏所有样式选项
+      document.querySelectorAll('.style-options').forEach(el => {
+        el.classList.add('hidden');
+      });
+      
+      // 显示选定的样式选项
+      if (style === 'basic') {
+        $('basicStyle').classList.remove('hidden');
+      } else if (style === 'gradient') {
+        $('gradientStyle').classList.remove('hidden');
+        updateGradientPreview();
+      }
+    });
+    
+    // 渐变预览更新
+    ['gradientFrom', 'gradientTo', 'gradientType'].forEach(id => {
+      $(id).addEventListener('input', updateGradientPreview);
+    });
+  }
+  
+  // 更新渐变预览
+  function updateGradientPreview() {
+    const from = $('gradientFrom').value;
+    const to = $('gradientTo').value;
+    const type = $('gradientType').value;
+    
+    const preview = $('gradientPreview');
+    
+    if (type === 'linear') {
+      preview.style.background = `linear-gradient(to right, ${from}, ${to})`;
+    } else {
+      preview.style.background = `radial-gradient(circle, ${from}, ${to})`;
+    }
+  }
+  
+  /* ---------- 8. Logo上传处理 ---------- */
+  function initLogoUploader() {
+    const logoDropzone = $('logoDropzone');
+    const logoFile = $('logoFile');
+    
+    // 点击上传区域触发文件选择
+    logoDropzone.addEventListener('click', () => {
+      logoFile.click();
+    });
+    
+    // 处理拖放
+    logoDropzone.addEventListener('dragover', e => {
+      e.preventDefault();
+      logoDropzone.style.borderColor = 'var(--primary)';
+      logoDropzone.style.background = 'var(--primary-light)';
+    });
+    
+    logoDropzone.addEventListener('dragleave', () => {
+      logoDropzone.style.borderColor = '';
+      logoDropzone.style.background = '';
+    });
+    
+    logoDropzone.addEventListener('drop', e => {
+      e.preventDefault();
+      logoDropzone.style.borderColor = '';
+      logoDropzone.style.background = '';
+      
+      if (e.dataTransfer.files.length) {
+        handleLogoFile(e.dataTransfer.files[0]);
+      }
+    });
+    
+    // 处理文件选择
+    logoFile.addEventListener('change', () => {
+      if (logoFile.files.length) {
+        handleLogoFile(logoFile.files[0]);
+      }
+    });
+    
+    // 处理Logo删除
+    $('removeLogo').addEventListener('click', () => {
+      $('logoPreviewContainer').classList.add('hidden');
+      $('logoPreview').src = '';
+      logoFile.value = '';
+    });
+  }
+  
+  // 处理Logo文件
+  function handleLogoFile(file) {
+    if (!file.type.startsWith('image/')) {
+      alert(settings.lang === 'zh' ? '请上传图片文件' : 'Please upload an image file');
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = e => {
+      $('logoPreview').src = e.target.result;
+      $('logoPreviewContainer').classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+  
+  /* ---------- 9. 表单处理和自动生成 ---------- */
+  function initForm() {
+    // 监听表单提交
+    $('form').addEventListener('submit', e => {
+      e.preventDefault();
+      
+      // 构建配置对象
+      const config = {
+        text: $('text').value.trim(),
+        size: +$('size').value,
+        margin: +$('margin').value,
+        level: $('level').value,
+        style: $('style').value
+      };
+      
+      // 根据样式添加不同的选项
+      if (config.style === 'basic') {
+        config.fg = $('fg').value;
+        config.bg = $('bg').value;
+      } else if (config.style === 'gradient') {
+        config.gradientFrom = $('gradientFrom').value;
+        config.gradientTo = $('gradientTo').value;
+        config.gradientType = $('gradientType').value;
+      }
+      
+      // 如果有Logo，添加到配置中
+      if (!$('logoPreviewContainer').classList.contains('hidden')) {
+        config.logo = $('logoPreview').src;
+      }
+      
+      renderQR(config);
+      
+      // 更新URL参数
+      updateURLParams(config);
+    });
+  }
+  
+  // 更新URL参数
+  function updateURLParams(config) {
+    const params = new URLSearchParams({
+      text: encodeURIComponent(config.text),
+      size: config.size,
+      margin: config.margin,
+      level: config.level,
+      style: config.style
+    });
+    
+    if (config.style === 'basic') {
+      params.set('fg', hex(config.fg));
+      params.set('bg', hex(config.bg));
+    } else if (config.style === 'gradient') {
+      params.set('gradientFrom', hex(config.gradientFrom));
+      params.set('gradientTo', hex(config.gradientTo));
+      params.set('gradientType', config.gradientType);
+    }
+    
+    history.replaceState(null, '', location.pathname + '?' + params.toString());
+  }
+  
+  // 从URL参数自动生成
+  function autoGenerateFromURL() {
+    const text = param('text', '').trim();
+    if (!text) return;
+    
+    try {
+      const style = param('style', 'basic');
+      
+      // 构建基本配置
+      const config = {
+        text: decodeURIComponent(text),
+        size: +param('size', 260),
+        margin: +param('margin', 4),
+        level: (param('level', 'M') || 'M').toUpperCase(),
+        style: style
+      };
+      
+      // 根据样式添加不同的选项
+      if (style === 'basic') {
+        config.fg = '#' + param('fg', '000000');
+        config.bg = '#' + param('bg', 'ffffff');
+      } else if (style === 'gradient') {
+        config.gradientFrom = '#' + param('gradientFrom', '4776E6');
+        config.gradientTo = '#' + param('gradientTo', '8E54E9');
+        config.gradientType = param('gradientType', 'linear');
+      }
+      
+      // 填充表单
+      $('text').value = config.text;
+      $('size').value = config.size;
+      $('margin').value = config.margin;
+      $('level').value = config.level;
+      $('style').value = config.style;
+      
+      if (style === 'basic') {
+        $('fg').value = config.fg;
+        $('bg').value = config.bg;
+      } else if (style === 'gradient') {
+        $('gradientFrom').value = config.gradientFrom;
+        $('gradientTo').value = config.gradientTo;
+        $('gradientType').value = config.gradientType;
+      }
+      
+      // 显示正确的样式选项
+      document.querySelectorAll('.style-options').forEach(el => {
+        el.classList.add('hidden');
+      });
+      
+      if (style === 'basic') {
+        $('basicStyle').classList.remove('hidden');
+      } else if (style === 'gradient') {
+        $('gradientStyle').classList.remove('hidden');
+        updateGradientPreview();
+      }
+      
+      // 生成二维码
+      renderQR(config);
+    } catch (err) {
+      console.error('Error auto-generating QR code:', err);
+    }
   }
 
-  /* ---------- 5. 表单交互 ---------- */
-  $('form').addEventListener('submit',e=>{
-    e.preventDefault();
-    render({
-      text: $('text').value.trim(),
-      size:+$('size').value,
-      margin:+$('margin').value,
-      level:$('level').value,
-      fg:$('fg').value,
-      bg:$('bg').value
-    });
-    // 把当前设置写回地址栏（不刷新）方便分享
-    const p = new URLSearchParams({
-      text:encodeURIComponent($('text').value.trim()),
-      size:$('size').value,
-      margin:$('margin').value,
-      level:$('level').value,
-      fg:hex($('fg').value),
-      bg:hex($('bg').value)
-    });
-    history.replaceState(null,'',location.pathname+'?'+p.toString());
-  });
+  /* ---------- 10. 二维码扫描功能 ---------- */
+  let scanner = null;
 
-  /* ---------- 6. PNG 下载 ---------- */
-  $('dlBtn').addEventListener('click',()=>{
+  function initScanner() {
+    // 绑定扫描按钮事件
+    $('startScanBtn').addEventListener('click', startScanner);
+    $('stopScanBtn').addEventListener('click', stopScanner);
+  }
+  
+  function startScanner() {
+    const scannerContainer = $('scanner');
+    $('startScanBtn').disabled = true;
+    $('stopScanBtn').disabled = false;
+    
+    Html5Qrcode.getCameras().then(devices => {
+      if (devices && devices.length) {
+        scanner = new Html5Qrcode('scanner');
+        scanner.start(
+          { facingMode: 'environment' },
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 250 }
+          },
+          onScanSuccess,
+          onScanFailure
+        ).catch(err => {
+          showMessage($('scanResult'), `${dict[settings.lang].scanError} ${err.message}`, 'error');
+          stopScanner();
+        });
+      } else {
+        showMessage($('scanResult'), dict[settings.lang].scanError + ' No cameras found', 'error');
+        stopScanner();
+      }
+    }).catch(err => {
+      showMessage($('scanResult'), `${dict[settings.lang].scanError} ${err.message}`, 'error');
+      stopScanner();
+    });
+  }
+  
+  function stopScanner() {
+    if (scanner) {
+      scanner.stop().then(() => {
+        scanner = null;
+        $('startScanBtn').disabled = false;
+        $('stopScanBtn').disabled = true;
+      }).catch(err => {
+        console.error('Error stopping scanner:', err);
+      });
+    } else {
+      $('startScanBtn').disabled = false;
+      $('stopScanBtn').disabled = true;
+    }
+  }
+  
+  function onScanSuccess(decodedText, decodedResult) {
+    // 停止扫描
+    stopScanner();
+    
+    // 显示结果
+    const resultEl = $('scanResult');
+    resultEl.innerHTML = `<strong>${dict[settings.lang].scanSuccess}</strong><br>${decodedText}`;
+    resultEl.classList.remove('hidden');
+    
+    // 如果是URL，添加链接
+    if (decodedText.startsWith('http')) {
+      const link = document.createElement('a');
+      link.href = decodedText;
+      link.target = '_blank';
+      link.textContent = dict[settings.lang].historyOpen;
+      link.className = 'btn-secondary';
+      link.style.display = 'inline-block';
+      link.style.marginTop = '10px';
+      resultEl.appendChild(document.createElement('br'));
+      resultEl.appendChild(link);
+    }
+    
+    // 保存到历史记录
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 100;
+    QRCode.toCanvas(canvas, decodedText, { width: 100, margin: 1 }).then(() => {
+      saveToHistory(canvas.toDataURL('image/png'), decodedText);
+    });
+  }
+  
+  function onScanFailure(error) {
+    // 不需要做任何事情，这是正常的失败
+    console.log('Scan failure:', error);
+  }
+  
+  /* ---------- 11. 历史记录功能 ---------- */
+  function initHistory() {
+    // 绑定历史相关按钮事件
+    $('clearHistoryBtn').addEventListener('click', clearHistory);
+    $('exportHistoryBtn').addEventListener('click', exportHistory);
+    
+    // 初始化历史列表
+    updateHistoryList();
+  }
+  
+  // 更新历史记录列表
+  function updateHistoryList() {
+    const container = $('historyList');
+    container.innerHTML = '';
+    
+    if (!history.length) {
+      const empty = document.createElement('p');
+      empty.textContent = dict[settings.lang].noHistory;
+      container.appendChild(empty);
+      return;
+    }
+    
+    history.forEach(item => {
+      const historyItem = document.createElement('div');
+      historyItem.className = 'history-item';
+      
+      // 二维码图片
+      const img = document.createElement('img');
+      img.src = item.dataURL;
+      img.alt = 'QR Code';
+      historyItem.appendChild(img);
+      
+      // 内容
+      const content = document.createElement('div');
+      content.className = 'history-item-content';
+      
+      const text = document.createElement('div');
+      text.style.wordBreak = 'break-word';
+      text.innerHTML = `<strong>${dict[settings.lang].historyContent}:</strong> ${item.text}`;
+      content.appendChild(text);
+      
+      const date = document.createElement('div');
+      date.style.fontSize = '0.85rem';
+      date.style.marginTop = '5px';
+      date.style.color = 'var(--text-secondary)';
+      date.innerHTML = `<strong>${dict[settings.lang].historyTime}:</strong> ${new Date(item.date).toLocaleString()}`;
+      content.appendChild(date);
+      
+      historyItem.appendChild(content);
+      
+      // 操作按钮
+      const actions = document.createElement('div');
+      actions.className = 'history-item-actions';
+      
+      // 使用按钮
+      const useBtn = document.createElement('button');
+      useBtn.className = 'btn-secondary';
+      useBtn.textContent = dict[settings.lang].historyOpen;
+      useBtn.addEventListener('click', () => {
+        // 切换到生成标签
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelector('.tab[data-tab="generate"]').classList.add('active');
+        $('tab-generate').classList.add('active');
+        
+        // 填充表单
+        $('text').value = item.text;
+        
+        // 触发表单提交
+        $('form').dispatchEvent(new Event('submit'));
+      });
+      actions.appendChild(useBtn);
+      
+      // 删除按钮
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn-secondary';
+      deleteBtn.textContent = dict[settings.lang].historyDelete;
+      deleteBtn.addEventListener('click', () => {
+        history = history.filter(h => h.id !== item.id);
+        localStorage.setItem('qr_history', JSON.stringify(history));
+        updateHistoryList();
+      });
+      actions.appendChild(deleteBtn);
+      
+      historyItem.appendChild(actions);
+      
+      container.appendChild(historyItem);
+    });
+  }
+  
+  // 清空历史记录
+  function clearHistory() {
+    if (confirm(settings.lang === 'zh' ? '确定要清空所有历史记录吗？' : 'Are you sure you want to clear all history?')) {
+      history = [];
+      localStorage.setItem('qr_history', JSON.stringify(history));
+      updateHistoryList();
+      showMessage($('scanResult'), dict[settings.lang].historyClear);
+    }
+  }
+  
+  // 导出历史记录
+  function exportHistory() {
+    if (!history.length) {
+      alert(settings.lang === 'zh' ? '没有历史记录可导出' : 'No history to export');
+      return;
+    }
+    
+    const dataStr = JSON.stringify(history);
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+    
+    const exportName = 'qr_history_' + new Date().toISOString().split('T')[0] + '.json';
+    
     const link = document.createElement('a');
-    link.download = 'qrcode.png';
-    link.href = $('qrCanvas').toDataURL('image/png');
+    link.setAttribute('href', dataUri);
+    link.setAttribute('download', exportName);
     link.click();
+  }
+  
+  /* ---------- 12. 下载和分享功能 ---------- */
+  function initDownloadButtons() {
+    // PNG下载
+    $('dlBtn').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'qrcode.png';
+      link.href = $('qrCanvas').toDataURL('image/png');
+      link.click();
+    });
+    
+    // SVG下载
+    $('svgBtn').addEventListener('click', () => {
+      const canvas = $('qrCanvas');
+      const text = $('text').value.trim();
+      
+      // 创建一个临时的SVG二维码
+      QRCode.toString(text, {
+        errorCorrectionLevel: $('level').value,
+        type: 'svg',
+        margin: +$('margin').value,
+        width: +$('size').value,
+        color: {
+          dark: $('style').value === 'basic' ? $('fg').value : '#000000',
+          light: $('style').value === 'basic' ? $('bg').value : '#ffffff'
+        }
+      }).then(svgString => {
+        const blob = new Blob([svgString], {type: 'image/svg+xml'});
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = 'qrcode.svg';
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+    });
+    
+    // 分享按钮
+    $('shareBtn').addEventListener('click', () => {
+      const url = window.location.href;
+      
+      // 如果支持Web Share API
+      if (navigator.share) {
+        navigator.share({
+          title: 'QR Code',
+          text: $('text').value.trim(),
+          url: url
+        }).catch(err => {
+          console.error('Error sharing:', err);
+          copyToClipboard(url);
+        });
+      } else {
+        copyToClipboard(url);
+      }
+    });
+  }
+  
+  // 复制到剪贴板
+  function copyToClipboard(text) {
+    const input = document.createElement('input');
+    input.value = text;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+    
+    showMessage($('scanResult'), dict[settings.lang].urlCopied);
+  }
+  
+  /* ---------- 最终初始化 ---------- */
+  window.addEventListener('DOMContentLoaded', () => {
+    initSettings();
+    initTabs();
+    initThemeToggle();
+    initStyleSwitcher();
+    initLogoUploader();
+    initForm();
+    initScanner();
+    initHistory();
+    initDownloadButtons();
+    
+    // 绑定设置页事件
+    $('saveSettingsBtn').addEventListener('click', saveSettings);
+    $('resetSettingsBtn').addEventListener('click', resetSettings);
+    
+    // 如果URL含参数则自动生成
+    autoGenerateFromURL();
   });
 })();
 </script>

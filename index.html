@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QR Code</title>
+
+<!-- 轻量级 QRCode.js -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+<style>
+  :root{--primary:#1a73e8;--bg:#f7f9fc;--radius:6px;font-size:16px;}
+  *{box-sizing:border-box;font-family:"Segoe UI","PingFang SC",Arial,sans-serif;}
+  body{margin:0;padding:2rem;background:var(--bg);color:#333;}
+  .container{max-width:860px;margin:0 auto;background:#fff;border-radius:var(--radius);
+             box-shadow:0 2px 6px rgba(0,0,0,.06);padding:2rem;text-align:center;}
+  h1{margin-top:0;font-size:1.6rem;}
+  canvas{margin-top:1.5rem;border:8px solid #fff;background:#fff;}
+  footer{margin-top:2rem;font-size:.9rem;}
+  footer a{color:var(--primary);text-decoration:none;font-weight:600;}
+  .note{color:#666;font-size:.85rem;margin-top:.5rem;}
+  .hidden{display:none;}
+  label,input,select{margin:.25rem 0;}
+  .fields{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:1rem;}
+  .fields>*{flex:1 1 160px;}
+  button{background:var(--primary);color:#fff;border:none;padding:.6rem 1.2rem;
+         border-radius:var(--radius);cursor:pointer;font-size:1rem;}
+  button:disabled{opacity:.6;cursor:not-allowed;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1 id="title">QR Code Generator</h1>
+
+  <!-- Canvas 区域 -->
+  <canvas id="qrCanvas" width="260" height="260" class="hidden"></canvas>
+
+  <!-- 可选交互表单（用户无参数时可手动生成/调整） -->
+  <form id="form" class="fields">
+    <div><label data-i18n="inputLabel">Content</label><input type="text" id="text" placeholder="https://chatgpt.org.uk"></div>
+    <div><label data-i18n="size">Size (px)</label><input type="number" id="size" value="260" min="120" max="1000"></div>
+    <div><label data-i18n="margin">Margin (px)</label><input type="number" id="margin" value="4" min="0" max="30"></div>
+    <div><label data-i18n="level">Level</label>
+      <select id="level">
+        <option>L</option><option selected>M</option><option>Q</option><option>H</option>
+      </select>
+    </div>
+    <div><label data-i18n="fg">FG</label><input type="color" id="fg" value="#000000"></div>
+    <div><label data-i18n="bg">BG</label><input type="color" id="bg" value="#ffffff"></div>
+    <div style="flex:1 1 100%;text-align:center;">
+      <button type="submit" id="genBtn">Generate</button>
+      <button type="button" id="dlBtn" disabled data-i18n="download">Download PNG</button>
+    </div>
+  </form>
+
+  <p class="note" id="help" data-i18n="note">
+    Tip: Attach parameters to the URL (e.g. <code>?text=Hello</code>) to auto-render.
+  </p>
+</div>
+
+<footer>
+  &copy; 2025 <a href="https://chatgpt.org.uk" target="_blank" rel="noopener">chatgpt.org.uk</a>
+</footer>
+
+<script>
+(() => {
+  /* ---------- 1. 简易 i18n ---------- */
+  const dict = {
+    en:{title:'QR Code Generator',inputLabel:'Content',size:'Size (px)',margin:'Margin (px)',
+        level:'Level',fg:'Foreground',bg:'Background',download:'Download PNG',
+        note:'Tip: Attach parameters to the URL (e.g. ?text=Hello) to auto-render.'},
+    zh:{title:'二维码生成器',inputLabel:'输入内容',size:'尺寸 (px)',margin:'边距 (px)',
+        level:'纠错级',fg:'前景色',bg:'背景色',download:'下载 PNG',
+        note:'提示：在网址后加参数（如 ?text=你好）可直接生成二维码'}
+  };
+  const lang = (navigator.language||'en').toLowerCase().startsWith('zh')?'zh':'en';
+  document.documentElement.lang = lang;
+  document.getElementById('title').textContent = dict[lang].title;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.dataset.i18n;
+    el.textContent = dict[lang][key]||el.textContent;
+  });
+
+  /* ---------- 2. 工具函数 ---------- */
+  const $ = id => document.getElementById(id);
+  const qs = new URLSearchParams(location.search);
+  const hex = v => v.replace(/^#/, '');
+  function param(name, def){return qs.get(name) ?? def;}
+
+  /* ---------- 3. 生成二维码主函数 ---------- */
+  async function render(cfg){
+    const {text,size,margin,level,fg,bg} = cfg;
+    if(!text){alert(lang==='zh'?'请输入内容':'Please enter content');return;}
+    const canvas = $('qrCanvas');
+    canvas.width = canvas.height = size;
+    await QRCode.toCanvas(canvas, text, {
+      errorCorrectionLevel: level,
+      margin, width:size,
+      color:{dark:'#'+hex(fg), light:'#'+hex(bg)}
+    });
+    canvas.classList.remove('hidden');
+    $('dlBtn').disabled = false;
+  }
+
+  /* ---------- 4. 若 URL 含参数则自动生成 ---------- */
+  const autoText = param('text', '').trim();
+  if(autoText){
+    const cfg = {
+      text: decodeURIComponent(autoText),
+      size: +param('size',260),
+      margin:+param('margin',4),
+      level: (param('level','M')||'M').toUpperCase(),
+      fg: '#'+param('fg','000000'),
+      bg: '#'+param('bg','ffffff')
+    };
+    // 填充表单以便用户二次修改
+    $('text').value   = cfg.text;
+    $('size').value   = cfg.size;
+    $('margin').value = cfg.margin;
+    $('level').value  = cfg.level;
+    $('fg').value     = cfg.fg;
+    $('bg').value     = cfg.bg;
+    render(cfg);
+  }
+
+  /* ---------- 5. 表单交互 ---------- */
+  $('form').addEventListener('submit',e=>{
+    e.preventDefault();
+    render({
+      text: $('text').value.trim(),
+      size:+$('size').value,
+      margin:+$('margin').value,
+      level:$('level').value,
+      fg:$('fg').value,
+      bg:$('bg').value
+    });
+    // 把当前设置写回地址栏（不刷新）方便分享
+    const p = new URLSearchParams({
+      text:encodeURIComponent($('text').value.trim()),
+      size:$('size').value,
+      margin:$('margin').value,
+      level:$('level').value,
+      fg:hex($('fg').value),
+      bg:hex($('bg').value)
+    });
+    history.replaceState(null,'',location.pathname+'?'+p.toString());
+  });
+
+  /* ---------- 6. PNG 下载 ---------- */
+  $('dlBtn').addEventListener('click',()=>{
+    const link = document.createElement('a');
+    link.download = 'qrcode.png';
+    link.href = $('qrCanvas').toDataURL('image/png');
+    link.click();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,262 +1,207 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EDU邮箱福利大全 | EDU Email Benefits</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title> Real-time QR Code Generator</title>
+  <style>
+    /* 全局样式 / Global styles */
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    }
+    /* 容器样式 / Container */
+    .container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 {
+      margin: 0 0 1rem;
+      font-size: 1.5rem;
+      color: #333;
+    }
+    /* 输入框 / Input */
+    #text {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #text:focus {
+      border-color: #667eea;
+    }
+    /* 按钮 / Buttons */
+    .btn {
+      margin-top: 1rem;
+      margin-right: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 4px;
+      background: #667eea;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:last-child {
+      margin-right: 0;
+    }
+    .btn:hover {
+      background: #556cd6;
+    }
+    /* 二维码容器 / QR code */
+    #qrcode {
+      margin-top: 1.5rem;
+    }
+    #qrcode canvas {
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    /* 提示文字 / Hint */
+    .hint {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      color: #666;
+    }
+    /* 个人网站链接 / Personal link */
+    .personal {
+      margin-top: 1rem;
+      font-size: 0.875rem;
+    }
+    .personal a {
+      color: #667eea;
+      text-decoration: none;
+    }
+    .personal a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-    <!-- 导航栏 -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <i class="fas fa-graduation-cap"></i>
-                <span data-zh="EDU福利" data-en="EDU Benefits">EDU福利</span>
-            </div>
-            <div class="nav-menu">
-                <a href="index.html" class="nav-link active" data-zh="首页" data-en="Home">首页</a>
-                <a href="software.html" class="nav-link" data-zh="软件工具" data-en="Software">软件工具</a>
-                <a href="cloud.html" class="nav-link" data-zh="云服务" data-en="Cloud Services">云服务</a>
-                <a href="learning.html" class="nav-link" data-zh="学习资源" data-en="Learning">学习资源</a>
-                <a href="entertainment.html" class="nav-link" data-zh="娱乐服务" data-en="Entertainment">娱乐服务</a>
-                <div class="language-switch">
-                    <button id="langBtn" class="lang-btn">
-                        <i class="fas fa-globe"></i>
-                        <span id="currentLang">中文</span>
-                    </button>
-                </div>
-            </div>
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-    </nav>
+  <div class="container">
+    <h1 id="title">实时 QR Code 生成器</h1>
+    <input
+      type="text"
+      id="text"
+      placeholder="请输入或粘贴内容，实时生成二维码"
+      autofocus
+    />
+    <p id="hint" class="hint">支持 URL 参数：?data=你的内容</p>
 
-    <!-- 主页内容 -->
-    <main>
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="hero-container">
-                <div class="hero-content">
-                    <h1 class="hero-title" data-zh="解锁你的EDU邮箱超级福利" data-en="Unlock Your EDU Email Super Benefits">解锁你的EDU邮箱超级福利</h1>
-                    <p class="hero-subtitle" data-zh="学生身份的隐藏价值，数百种免费和优惠服务等你发现" data-en="Hidden value of student status, hundreds of free and discounted services await you">学生身份的隐藏价值，数百种免费和优惠服务等你发现</p>
-                    <div class="hero-buttons">
-                        <a href="#benefits" class="btn btn-primary" data-zh="探索福利" data-en="Explore Benefits">探索福利</a>
-                        <a href="#how-to-apply" class="btn btn-secondary" data-zh="申请指南" data-en="How to Apply">申请指南</a>
-                    </div>
-                </div>
-                <div class="hero-image">
-                    <div class="hero-card">
-                        <i class="fas fa-envelope"></i>
-                        <span>@edu</span>
-                    </div>
-                </div>
-            </div>
-        </section>
+    <!-- 新增按钮 / Buttons -->
+    <button id="pasteBtn" class="btn">粘贴</button>
+    <button id="clearBtn" class="btn">清除</button>
 
-        <!-- 统计数据 -->
-        <section class="stats">
-            <div class="container">
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-number">200+</div>
-                        <div class="stat-label" data-zh="免费服务" data-en="Free Services">免费服务</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">$10,000+</div>
-                        <div class="stat-label" data-zh="总价值" data-en="Total Value">总价值</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">50+</div>
-                        <div class="stat-label" data-zh="知名品牌" data-en="Famous Brands">知名品牌</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">100%</div>
-                        <div class="stat-label" data-zh="学生专享" data-en="Student Exclusive">学生专享</div>
-                    </div>
-                </div>
-            </div>
-        </section>
+    <!-- 二维码显示区 / QR code container -->
+    <div id="qrcode"></div>
 
-        <!-- 主要福利分类 -->
-        <section id="benefits" class="benefits">
-            <div class="container">
-                <div class="section-header">
-                    <h2 data-zh="热门福利分类" data-en="Popular Benefit Categories">热门福利分类</h2>
-                    <p data-zh="发现最受学生欢迎的免费和优惠服务" data-en="Discover the most popular free and discounted services for students">发现最受学生欢迎的免费和优惠服务</p>
-                </div>
-                <div class="benefits-grid">
-                    <div class="benefit-card">
-                        <div class="benefit-icon">
-                            <i class="fas fa-code"></i>
-                        </div>
-                        <h3 data-zh="开发工具" data-en="Development Tools">开发工具</h3>
-                        <p data-zh="GitHub Pro、JetBrains全家桶、Visual Studio等专业开发工具" data-en="GitHub Pro, JetBrains Suite, Visual Studio and other professional development tools">GitHub Pro、JetBrains全家桶、Visual Studio等专业开发工具</p>
-                        <a href="software.html" class="benefit-link" data-zh="查看详情" data-en="View Details">查看详情 <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                    <div class="benefit-card">
-                        <div class="benefit-icon">
-                            <i class="fas fa-cloud"></i>
-                        </div>
-                        <h3 data-zh="云服务" data-en="Cloud Services">云服务</h3>
-                        <p data-zh="AWS、Azure、Google Cloud等云平台免费额度" data-en="Free credits for AWS, Azure, Google Cloud and other cloud platforms">AWS、Azure、Google Cloud等云平台免费额度</p>
-                        <a href="cloud.html" class="benefit-link" data-zh="查看详情" data-en="View Details">查看详情 <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                    <div class="benefit-card">
-                        <div class="benefit-icon">
-                            <i class="fas fa-palette"></i>
-                        </div>
-                        <h3 data-zh="创意软件" data-en="Creative Software">创意软件</h3>
-                        <p data-zh="Adobe Creative Cloud、Figma、Canva Pro等设计工具" data-en="Adobe Creative Cloud, Figma, Canva Pro and other design tools">Adobe Creative Cloud、Figma、Canva Pro等设计工具</p>
-                        <a href="software.html#creative" class="benefit-link" data-zh="查看详情" data-en="View Details">查看详情 <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                    <div class="benefit-card">
-                        <div class="benefit-icon">
-                            <i class="fas fa-book"></i>
-                        </div>
-                        <h3 data-zh="学习资源" data-en="Learning Resources">学习资源</h3>
-                        <p data-zh="Coursera、Udemy、Pluralsight等在线课程平台" data-en="Coursera, Udemy, Pluralsight and other online learning platforms">Coursera、Udemy、Pluralsight等在线课程平台</p>
-                        <a href="learning.html" class="benefit-link" data-zh="查看详情" data-en="View Details">查看详情 <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                    <div class="benefit-card">
-                        <div class="benefit-icon">
-                            <i class="fas fa-music"></i>
-                        </div>
-                        <h3 data-zh="娱乐服务" data-en="Entertainment">娱乐服务</h3>
-                        <p data-zh="Spotify、Netflix、YouTube Premium等娱乐平台优惠" data-en="Discounts on Spotify, Netflix, YouTube Premium and other entertainment platforms">Spotify、Netflix、YouTube Premium等娱乐平台优惠</p>
-                        <a href="entertainment.html" class="benefit-link" data-zh="查看详情" data-en="View Details">查看详情 <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                    <div class="benefit-card">
-                        <div class="benefit-icon">
-                            <i class="fas fa-laptop"></i>
-                        </div>
-                        <h3 data-zh="硬件优惠" data-en="Hardware Discounts">硬件优惠</h3>
-                        <p data-zh="Apple、Microsoft、Adobe等品牌的学生专享硬件折扣" data-en="Student exclusive hardware discounts from Apple, Microsoft, Adobe and other brands">Apple、Microsoft、Adobe等品牌的学生专享硬件折扣</p>
-                        <a href="software.html#hardware" class="benefit-link" data-zh="查看详情" data-en="View Details">查看详情 <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </div>
-            </div>
-        </section>
+    <!-- 个人网站链接 / Personal website -->
+    <p id="personal" class="personal">
+      访问我的个人网站：<a href="http://chatgpt.org.uk" target="_blank" rel="noopener">chatgpt.org.uk</a>
+    </p>
+  </div>
 
-        <!-- 申请指南 -->
-        <section id="how-to-apply" class="how-to-apply">
-            <div class="container">
-                <div class="section-header">
-                    <h2 data-zh="如何申请EDU邮箱福利" data-en="How to Apply for EDU Email Benefits">如何申请EDU邮箱福利</h2>
-                    <p data-zh="简单几步，开启你的学生福利之旅" data-en="Simple steps to start your student benefits journey">简单几步，开启你的学生福利之旅</p>
-                </div>
-                <div class="steps-container">
-                    <div class="step">
-                        <div class="step-number">1</div>
-                        <div class="step-content">
-                            <h3 data-zh="获取EDU邮箱" data-en="Get EDU Email">获取EDU邮箱</h3>
-                            <p data-zh="通过学校官方渠道申请以.edu结尾的邮箱地址" data-en="Apply for an email address ending with .edu through official school channels">通过学校官方渠道申请以.edu结尾的邮箱地址</p>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">2</div>
-                        <div class="step-content">
-                            <h3 data-zh="验证学生身份" data-en="Verify Student Status">验证学生身份</h3>
-                            <p data-zh="准备学生证、在读证明等相关材料进行身份验证" data-en="Prepare student ID, enrollment certificate and other relevant materials for identity verification">准备学生证、在读证明等相关材料进行身份验证</p>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">3</div>
-                        <div class="step-content">
-                            <h3 data-zh="选择服务" data-en="Choose Services">选择服务</h3>
-                            <p data-zh="浏览我们的福利列表，选择你需要的服务和工具" data-en="Browse our benefits list and choose the services and tools you need">浏览我们的福利列表，选择你需要的服务和工具</p>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">4</div>
-                        <div class="step-content">
-                            <h3 data-zh="立即申请" data-en="Apply Now">立即申请</h3>
-                            <p data-zh="访问相应网站，使用EDU邮箱注册并享受学生优惠" data-en="Visit the respective websites, register with your EDU email and enjoy student discounts">访问相应网站，使用EDU邮箱注册并享受学生优惠</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+  <!-- 引入二维码库 / QR code library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script>
+    // 文本 / Translations
+    const texts = {
+      en: {
+        title: 'Real-time QR Code Generator',
+        placeholder: 'Enter or paste content to generate QR code in real time',
+        hint: 'Supports URL parameter: ?data=your content',
+        pasteBtn: 'Paste',
+        clearBtn: 'Clear',
+        personal: 'Visit my personal website: '
+      },
+      zh: {
+        title: '实时 QR Code 生成器',
+        placeholder: '请输入或粘贴内容，实时生成二维码',
+        hint: '支持 URL 参数：?data=你的内容',
+        pasteBtn: '粘贴',
+        clearBtn: '清除',
+        personal: '访问我的个人网站：'
+      }
+    };
 
-        <!-- 热门推荐 -->
-        <section class="featured">
-            <div class="container">
-                <div class="section-header">
-                    <h2 data-zh="热门推荐" data-en="Featured Benefits">热门推荐</h2>
-                    <p data-zh="最受学生欢迎的免费服务" data-en="Most popular free services among students">最受学生欢迎的免费服务</p>
-                </div>
-                <div class="featured-grid">
-                    <div class="featured-item">
-                        <div class="featured-logo">
-                            <i class="fab fa-github"></i>
-                        </div>
-                        <div class="featured-content">
-                            <h3>GitHub Student Pack</h3>
-                            <p data-zh="价值超过$200,000的开发者工具包，包含数十种专业工具" data-en="Developer toolkit worth over $200,000, including dozens of professional tools">价值超过$200,000的开发者工具包，包含数十种专业工具</p>
-                            <span class="featured-value" data-zh="价值: $200,000+" data-en="Value: $200,000+">价值: $200,000+</span>
-                        </div>
-                    </div>
-                    <div class="featured-item">
-                        <div class="featured-logo">
-                            <i class="fab fa-microsoft"></i>
-                        </div>
-                        <div class="featured-content">
-                            <h3>Microsoft Office 365</h3>
-                            <p data-zh="免费使用完整的Office套件，包括Word、Excel、PowerPoint等" data-en="Free access to complete Office suite including Word, Excel, PowerPoint and more">免费使用完整的Office套件，包括Word、Excel、PowerPoint等</p>
-                            <span class="featured-value" data-zh="价值: $99/年" data-en="Value: $99/year">价值: $99/年</span>
-                        </div>
-                    </div>
-                    <div class="featured-item">
-                        <div class="featured-logo">
-                            <i class="fas fa-paint-brush"></i>
-                        </div>
-                        <div class="featured-content">
-                            <h3>Adobe Creative Cloud</h3>
-                            <p data-zh="60%折扣使用Photoshop、Illustrator、Premiere Pro等创意软件" data-en="60% discount on Photoshop, Illustrator, Premiere Pro and other creative software">60%折扣使用Photoshop、Illustrator、Premiere Pro等创意软件</p>
-                            <span class="featured-value" data-zh="价值: $240/年" data-en="Value: $240/year">价值: $240/年</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
+    // 语言检测 / detect browser language
+    const lang = navigator.language && navigator.language.startsWith('zh') ? 'zh' : 'en';
 
-    <!-- 页脚 -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <div class="footer-logo">
-                        <i class="fas fa-graduation-cap"></i>
-                        <span data-zh="EDU福利" data-en="EDU Benefits">EDU福利</span>
-                    </div>
-                    <p data-zh="帮助学生发现和申请各种EDU邮箱福利，最大化学生身份的价值。" data-en="Helping students discover and apply for various EDU email benefits, maximizing the value of student status.">帮助学生发现和申请各种EDU邮箱福利，最大化学生身份的价值。</p>
-                </div>
-                <div class="footer-section">
-                    <h4 data-zh="快速链接" data-en="Quick Links">快速链接</h4>
-                    <ul>
-                        <li><a href="software.html" data-zh="软件工具" data-en="Software">软件工具</a></li>
-                        <li><a href="cloud.html" data-zh="云服务" data-en="Cloud Services">云服务</a></li>
-                        <li><a href="learning.html" data-zh="学习资源" data-en="Learning">学习资源</a></li>
-                        <li><a href="entertainment.html" data-zh="娱乐服务" data-en="Entertainment">娱乐服务</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4 data-zh="联系我们" data-en="Contact Us">联系我们</h4>
-                    <p data-zh="如果您发现了新的EDU福利或有任何建议，欢迎联系我们。" data-en="If you discover new EDU benefits or have any suggestions, feel free to contact us.">如果您发现了新的EDU福利或有任何建议，欢迎联系我们。</p>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p data-zh="© 2024 EDU福利大全. 保留所有权利。" data-en="© 2024 EDU Benefits. All rights reserved.">© 2024 EDU福利大全. 保留所有权利。</p>
-            </div>
-        </div>
-    </footer>
+    // 应用文本 / apply translations
+    document.getElementById('title').innerText = texts[lang].title;
+    document.getElementById('text').placeholder = texts[lang].placeholder;
+    document.getElementById('hint').innerText = texts[lang].hint;
+    document.getElementById('pasteBtn').innerText = texts[lang].pasteBtn;
+    document.getElementById('clearBtn').innerText = texts[lang].clearBtn;
+    document.getElementById('personal').firstChild.nodeValue = texts[lang].personal;
 
-    <script src="script.js"></script>
+    const input = document.getElementById('text');
+    const qrContainer = document.getElementById('qrcode');
+    const pasteBtn = document.getElementById('pasteBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    let debounceTimer = null;
+
+    // 生成二维码 / generate QR code
+    function generateQRCode(text) {
+      qrContainer.innerHTML = '';
+      if (!text) return;
+      QRCode.toCanvas(text, { width: 256 }, (err, canvas) => {
+        if (err) {
+          qrContainer.textContent = lang === 'zh' ? '二维码生成失败' : 'QR code generation failed';
+          console.error(err);
+        } else {
+          qrContainer.appendChild(canvas);
+        }
+      });
+    }
+
+    // 输入防抖 / debounce on input
+    input.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        generateQRCode(input.value.trim());
+      }, 300);
+    });
+
+    // 粘贴按钮 / Paste from clipboard
+    pasteBtn.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        input.value = text;
+        generateQRCode(text);
+      } catch (err) {
+        console.error(lang === 'zh' ? '读取剪贴板失败' : 'Failed to read clipboard', err);
+      }
+    });
+
+    // 清除按钮 / Clear input & QR
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      qrContainer.innerHTML = '';
+      input.focus();
+    });
+
+    // URL 参数自动生成 / auto-generate from URL
+    const params = new URLSearchParams(window.location.search);
+    const data = params.get('data');
+    if (data) {
+      input.value = data;
+      generateQRCode(data);
+    }
+  </script>
 </body>
 </html>

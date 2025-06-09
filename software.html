@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>软件工具 - EDU邮箱福利大全 | Software Tools - EDU Email Benefits</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span data-zh="EDU福利" data-en="EDU Benefits">EDU福利</span>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link" data-zh="首页" data-en="Home">首页</a>
+                <a href="software.html" class="nav-link active" data-zh="软件工具" data-en="Software">软件工具</a>
+                <a href="cloud.html" class="nav-link" data-zh="云服务" data-en="Cloud Services">云服务</a>
+                <a href="learning.html" class="nav-link" data-zh="学习资源" data-en="Learning">学习资源</a>
+                <a href="entertainment.html" class="nav-link" data-zh="娱乐服务" data-en="Entertainment">娱乐服务</a>
+                <div class="language-switch">
+                    <button id="langBtn" class="lang-btn">
+                        <i class="fas fa-globe"></i>
+                        <span id="currentLang">中文</span>
+                    </button>
+                </div>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面头部 -->
+    <section class="page-header">
+        <div class="container">
+            <div class="page-header-content">
+                <h1 data-zh="软件工具福利" data-en="Software Tools Benefits">软件工具福利</h1>
+                <p data-zh="专业开发工具、创意软件和生产力应用的学生优惠" data-en="Student discounts on professional development tools, creative software and productivity apps">专业开发工具、创意软件和生产力应用的学生优惠</p>
+            </div>
+        </div>
+    </section>
+
+    <main>
+        <!-- 开发工具 -->
+        <section class="software-category">
+            <div class="container">
+                <div class="category-header">
+                    <h2 data-zh="开发工具" data-en="Development Tools">开发工具</h2>
+                    <p data-zh="提升编程效率的专业开发环境和工具" data-en="Professional development environments and tools to boost programming efficiency">提升编程效率的专业开发环境和工具</p>
+                </div>
+                <div class="software-grid">
+                    <div class="software-card">
+                        <div class="software-logo">
+                            <i class="fab fa-github"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>GitHub Student Pack</h3>
+                            <div class="software-price">
+                                <span class="original-price" data-zh="价值 $200,000+" data-en="Value $200,000+">价值 $200,000+</span>
+                                <span class="student-price" data-zh="免费" data-en="Free">免费</span>
+                            </div>
+                            <p data-zh="包含数十种开发工具和服务，如GitHub Pro、Heroku、DigitalOcean积分、域名等" data-en="Includes dozens of development tools and services like GitHub Pro, Heroku, DigitalOcean credits, domains, etc.">包含数十种开发工具和服务，如GitHub Pro、Heroku、DigitalOcean积分、域名等</p>
+                            <div class="software-features">
+                                <span class="feature-tag" data-zh="GitHub Pro" data-en="GitHub Pro">GitHub Pro</span>
+                                <span class="feature-tag" data-zh="云服务积分" data-en="Cloud Credits">云服务积分</span>
+                                <span class="feature-tag" data-zh="免费域名" data-en="Free Domains">免费域名</span>
+                            </div>
+                            <a href="https://education.github.com/pack" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo jetbrains">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>JetBrains 全家桶</h3>
+                            <div class="software-price">
+                                <span class="original-price" data-zh="$649/年" data-en="$649/year">$649/年</span>
+                                <span class="student-price" data-zh="免费" data-en="Free">免费</span>
+                            </div>
+                            <p data-zh="包括IntelliJ IDEA、PyCharm、WebStorm、PhpStorm等所有专业IDE" data-en="Includes all professional IDEs like IntelliJ IDEA, PyCharm, WebStorm, PhpStorm, etc.">包括IntelliJ IDEA、PyCharm、WebStorm、PhpStorm等所有专业IDE</p>
+                            <div class="software-features">
+                                <span class="feature-tag">IntelliJ IDEA</span>
+                                <span class="feature-tag">PyCharm</span>
+                                <span class="feature-tag">WebStorm</span>
+                            </div>
+                            <a href="https://www.jetbrains.com/student/" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo microsoft">
+                            <i class="fab fa-microsoft"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Visual Studio Professional</h3>
+                            <div class="software-price">
+                                <span class="original-price" data-zh="$539/年" data-en="$539/year">$539/年</span>
+                                <span class="student-price" data-zh="免费" data-en="Free">免费</span>
+                            </div>
+                            <p data-zh="微软专业开发环境，支持多种编程语言和平台开发" data-en="Microsoft's professional development environment supporting multiple programming languages and platforms">微软专业开发环境，支持多种编程语言和平台开发</p>
+                            <div class="software-features">
+                                <span class="feature-tag" data-zh="多语言支持" data-en="Multi-language">多语言支持</span>
+                                <span class="feature-tag" data-zh="调试工具" data-en="Debugging Tools">调试工具</span>
+                                <span class="feature-tag" data-zh="团队协作" data-en="Team Collaboration">团队协作</span>
+                            </div>
+                            <a href="https://visualstudio.microsoft.com/students/" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 创意软件 -->
+        <section id="creative" class="software-category alt-bg">
+            <div class="container">
+                <div class="category-header">
+                    <h2 data-zh="创意软件" data-en="Creative Software">创意软件</h2>
+                    <p data-zh="专业设计和创意工具，释放你的创造力" data-en="Professional design and creative tools to unleash your creativity">专业设计和创意工具，释放你的创造力</p>
+                </div>
+                <div class="software-grid">
+                    <div class="software-card">
+                        <div class="software-logo adobe">
+                            <i class="fas fa-paint-brush"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Adobe Creative Cloud</h3>
+                            <div class="software-price">
+                                <span class="original-price" data-zh="$599/年" data-en="$599/year">$599/年</span>
+                                <span class="student-price" data-zh="$239/年" data-en="$239/year">$239/年</span>
+                            </div>
+                            <p data-zh="包含Photoshop、Illustrator、Premiere Pro、After Effects等20多款创意应用" data-en="Includes 20+ creative apps like Photoshop, Illustrator, Premiere Pro, After Effects, etc.">包含Photoshop、Illustrator、Premiere Pro、After Effects等20多款创意应用</p>
+                            <div class="software-features">
+                                <span class="feature-tag">Photoshop</span>
+                                <span class="feature-tag">Illustrator</span>
+                                <span class="feature-tag">Premiere Pro</span>
+                            </div>
+                            <a href="https://www.adobe.com/creativecloud/buy/students.html" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo figma">
+                            <i class="fas fa-vector-square"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Figma Education</h3>
+                            <div class="software-price">
+                                <span class="original-price" data-zh="$144/年" data-en="$144/year">$144/年</span>
+                                <span class="student-price" data-zh="免费" data-en="Free">免费</span>
+                            </div>
+                            <p data-zh="专业UI/UX设计工具，支持实时协作和原型制作" data-en="Professional UI/UX design tool with real-time collaboration and prototyping">专业UI/UX设计工具，支持实时协作和原型制作</p>
+                            <div class="software-features">
+                                <span class="feature-tag" data-zh="实时协作" data-en="Real-time Collaboration">实时协作</span>
+                                <span class="feature-tag" data-zh="原型制作" data-en="Prototyping">原型制作</span>
+                                <span class="feature-tag" data-zh="设计系统" data-en="Design Systems">设计系统</span>
+                            </div>
+                            <a href="https://www.figma.com/education/" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo canva">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Canva Pro</h3>
+                            <div class="software-price">
+                                <span class="original-price" data-zh="$119/年" data-en="$119/year">$119/年</span>
+                                <span class="student-price" data-zh="免费" data-en="Free">免费</span>
+                            </div>
+                            <p data-zh="简单易用的设计工具，包含海量模板和素材库" data-en="Easy-to-use design tool with massive templates and asset library">简单易用的设计工具，包含海量模板和素材库</p>
+                            <div class="software-features">
+                                <span class="feature-tag" data-zh="海量模板" data-en="Massive Templates">海量模板</span>
+                                <span class="feature-tag" data-zh="素材库" data-en="Asset Library">素材库</span>
+                                <span class="feature-tag" data-zh="团队协作" data-en="Team Collaboration">团队协作</span>
+                            </div>
+                            <a href="https://www.canva.com/education/" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 生产力工具 -->
+        <section class="software-category">
+            <div class="container">
+                <div class="category-header">
+                    <h2 data-zh="生产力工具" data-en="Productivity Tools">生产力工具</h2>
+                    <p data-zh="提升学习和工作效率的必备工具" data-en="Essential tools to boost learning and work efficiency">提升学习和工作效率的必备工具</p>
+                </div>
+                <div class="software-grid">
+                    <div class="software-card">
+                        <div class="software-logo microsoft">
+                            <i class="fab fa-microsoft"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Microsoft Office 365</h3>
+                            <div class="software-price">
+                                <span class="original-price" data-zh="$99/年" data-en="$99/year">$99/年</span>
+                                <span class="student-price" data-zh="免费" data-en="Free">免费</span>
+                            </div>
+                            <p data-zh="完整的Office套件，包括Word、Excel、PowerPoint、Teams等" data-en="Complete Office suite including Word, Excel, PowerPoint, Teams, etc.">完整的Office套件，包括Word、Excel、PowerPoint、Teams等</p>
+                            <div class="software-features">
+                                <span class="feature-tag">Word</span>
+                                <span class="feature-tag">Excel</span>
+                                <span class="feature-tag">PowerPoint</span>
+                            </div>
+                            <a href="https://www.microsoft.com/education/products/office" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo notion">
+                            <i class="fas fa-sticky-note"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Notion Personal Pro</h3>
+                            <div class="software-price">
+                                <span class="original-price" data-zh="$48/年" data-en="$48/year">$48/年</span>
+                                <span class="student-price" data-zh="免费" data-en="Free">免费</span>
+                            </div>
+                            <p data-zh="全能笔记和协作工具，支持文档、数据库、看板等多种功能" data-en="All-in-one note-taking and collaboration tool with docs, databases, kanban boards, etc.">全能笔记和协作工具，支持文档、数据库、看板等多种功能</p>
+                            <div class="software-features">
+                                <span class="feature-tag" data-zh="笔记管理" data-en="Note Management">笔记管理</span>
+                                <span class="feature-tag" data-zh="数据库" data-en="Database">数据库</span>
+                                <span class="feature-tag" data-zh="项目管理" data-en="Project Management">项目管理</span>
+                            </div>
+                            <a href="https://www.notion.so/students" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo grammarly">
+                            <i class="fas fa-spell-check"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Grammarly Premium</h3>
+                            <div class="software-price">
+                                <span class="original-price" data-zh="$144/年" data-en="$144/year">$144/年</span>
+                                <span class="student-price" data-zh="免费" data-en="Free">免费</span>
+                            </div>
+                            <p data-zh="AI驱动的英文写作助手，提供语法检查、风格建议等功能" data-en="AI-powered English writing assistant with grammar checking, style suggestions, etc.">AI驱动的英文写作助手，提供语法检查、风格建议等功能</p>
+                            <div class="software-features">
+                                <span class="feature-tag" data-zh="语法检查" data-en="Grammar Check">语法检查</span>
+                                <span class="feature-tag" data-zh="风格建议" data-en="Style Suggestions">风格建议</span>
+                                <span class="feature-tag" data-zh="抄袭检测" data-en="Plagiarism Detection">抄袭检测</span>
+                            </div>
+                            <a href="https://www.grammarly.com/students" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 硬件优惠 -->
+        <section id="hardware" class="software-category alt-bg">
+            <div class="container">
+                <div class="category-header">
+                    <h2 data-zh="硬件优惠" data-en="Hardware Discounts">硬件优惠</h2>
+                    <p data-zh="知名品牌的学生专享硬件折扣" data-en="Student exclusive hardware discounts from famous brands">知名品牌的学生专享硬件折扣</p>
+                </div>
+                <div class="software-grid">
+                    <div class="software-card">
+                        <div class="software-logo apple">
+                            <i class="fab fa-apple"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Apple 教育优惠</h3>
+                            <div class="software-price">
+                                <span class="discount-badge" data-zh="最高10%折扣" data-en="Up to 10% Off">最高10%折扣</span>
+                            </div>
+                            <p data-zh="Mac、iPad、Apple Watch等产品的学生优惠，还可获得免费AirPods" data-en="Student discounts on Mac, iPad, Apple Watch and more, plus free AirPods">Mac、iPad、Apple Watch等产品的学生优惠，还可获得免费AirPods</p>
+                            <div class="software-features">
+                                <span class="feature-tag">MacBook</span>
+                                <span class="feature-tag">iPad</span>
+                                <span class="feature-tag" data-zh="免费AirPods" data-en="Free AirPods">免费AirPods</span>
+                            </div>
+                            <a href="https://www.apple.com/us-hed/shop" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo microsoft">
+                            <i class="fab fa-microsoft"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Microsoft Surface 学生优惠</h3>
+                            <div class="software-price">
+                                <span class="discount-badge" data-zh="最高10%折扣" data-en="Up to 10% Off">最高10%折扣</span>
+                            </div>
+                            <p data-zh="Surface笔记本、平板电脑和配件的学生专享价格" data-en="Student exclusive prices on Surface laptops, tablets and accessories">Surface笔记本、平板电脑和配件的学生专享价格</p>
+                            <div class="software-features">
+                                <span class="feature-tag">Surface Laptop</span>
+                                <span class="feature-tag">Surface Pro</span>
+                                <span class="feature-tag" data-zh="配件优惠" data-en="Accessory Discounts">配件优惠</span>
+                            </div>
+                            <a href="https://www.microsoft.com/en-us/store/b/education" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo dell">
+                            <i class="fas fa-laptop"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Dell 学生优惠</h3>
+                            <div class="software-price">
+                                <span class="discount-badge" data-zh="最高17%折扣" data-en="Up to 17% Off">最高17%折扣</span>
+                            </div>
+                            <p data-zh="XPS、Inspiron、Alienware等系列笔记本的学生折扣" data-en="Student discounts on XPS, Inspiron, Alienware and other laptop series">XPS、Inspiron、Alienware等系列笔记本的学生折扣</p>
+                            <div class="software-features">
+                                <span class="feature-tag">XPS</span>
+                                <span class="feature-tag">Inspiron</span>
+                                <span class="feature-tag">Alienware</span>
+                            </div>
+                            <a href="https://www.dell.com/en-us/shop/dell-advantage/cp/students" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span data-zh="EDU福利" data-en="EDU Benefits">EDU福利</span>
+                    </div>
+                    <p data-zh="帮助学生发现和申请各种EDU邮箱福利，最大化学生身份的价值。" data-en="Helping students discover and apply for various EDU email benefits, maximizing the value of student status.">帮助学生发现和申请各种EDU邮箱福利，最大化学生身份的价值。</p>
+                </div>
+                <div class="footer-section">
+                    <h4 data-zh="快速链接" data-en="Quick Links">快速链接</h4>
+                    <ul>
+                        <li><a href="software.html" data-zh="软件工具" data-en="Software">软件工具</a></li>
+                        <li><a href="cloud.html" data-zh="云服务" data-en="Cloud Services">云服务</a></li>
+                        <li><a href="learning.html" data-zh="学习资源" data-en="Learning">学习资源</a></li>
+                        <li><a href="entertainment.html" data-zh="娱乐服务" data-en="Entertainment">娱乐服务</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-zh="联系我们" data-en="Contact Us">联系我们</h4>
+                    <p data-zh="如果您发现了新的EDU福利或有任何建议，欢迎联系我们。" data-en="If you discover new EDU benefits or have any suggestions, feel free to contact us.">如果您发现了新的EDU福利或有任何建议，欢迎联系我们。</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p data-zh="© 2024 EDU福利大全. 保留所有权利。" data-en="© 2024 EDU Benefits. All rights reserved.">© 2024 EDU福利大全. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 

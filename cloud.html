@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云服务 - EDU邮箱福利大全 | Cloud Services - EDU Email Benefits</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span data-zh="EDU福利" data-en="EDU Benefits">EDU福利</span>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link" data-zh="首页" data-en="Home">首页</a>
+                <a href="software.html" class="nav-link" data-zh="软件工具" data-en="Software">软件工具</a>
+                <a href="cloud.html" class="nav-link active" data-zh="云服务" data-en="Cloud Services">云服务</a>
+                <a href="learning.html" class="nav-link" data-zh="学习资源" data-en="Learning">学习资源</a>
+                <a href="entertainment.html" class="nav-link" data-zh="娱乐服务" data-en="Entertainment">娱乐服务</a>
+                <div class="language-switch">
+                    <button id="langBtn" class="lang-btn">
+                        <i class="fas fa-globe"></i>
+                        <span id="currentLang">中文</span>
+                    </button>
+                </div>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面头部 -->
+    <section class="page-header">
+        <div class="container">
+            <div class="page-header-content">
+                <h1 data-zh="云服务福利" data-en="Cloud Services Benefits">云服务福利</h1>
+                <p data-zh="主流云平台的免费额度和学生优惠，助力你的项目开发" data-en="Free credits and student discounts from major cloud platforms to power your projects">主流云平台的免费额度和学生优惠，助力你的项目开发</p>
+            </div>
+        </div>
+    </section>
+
+    <main>
+        <!-- 主要云平台 -->
+        <section class="software-category">
+            <div class="container">
+                <div class="category-header">
+                    <h2 data-zh="主要云平台" data-en="Major Cloud Platforms">主要云平台</h2>
+                    <p data-zh="全球领先的云服务提供商的学生优惠计划" data-en="Student benefit programs from world's leading cloud service providers">全球领先的云服务提供商的学生优惠计划</p>
+                </div>
+                <div class="software-grid">
+                    <div class="software-card">
+                        <div class="software-logo aws">
+                            <i class="fab fa-aws"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>AWS Educate</h3>
+                            <div class="software-price">
+                                <span class="student-price" data-zh="$100 免费额度" data-en="$100 Free Credits">$100 免费额度</span>
+                            </div>
+                            <p data-zh="亚马逊云服务的教育计划，提供免费云计算资源和学习材料" data-en="Amazon's education program providing free cloud computing resources and learning materials">亚马逊云服务的教育计划，提供免费云计算资源和学习材料</p>
+                            <div class="software-features">
+                                <span class="feature-tag">EC2</span>
+                                <span class="feature-tag">S3</span>
+                                <span class="feature-tag" data-zh="在线课程" data-en="Online Courses">在线课程</span>
+                            </div>
+                            <a href="https://aws.amazon.com/education/awseducate/" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo azure">
+                            <i class="fab fa-microsoft"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Azure for Students</h3>
+                            <div class="software-price">
+                                <span class="student-price" data-zh="$100 免费额度" data-en="$100 Free Credits">$100 免费额度</span>
+                            </div>
+                            <p data-zh="微软Azure云平台的学生计划，无需信用卡即可开始使用" data-en="Microsoft Azure's student program, start using without credit card required">微软Azure云平台的学生计划，无需信用卡即可开始使用</p>
+                            <div class="software-features">
+                                <span class="feature-tag" data-zh="虚拟机" data-en="Virtual Machines">虚拟机</span>
+                                <span class="feature-tag" data-zh="数据库" data-en="Databases">数据库</span>
+                                <span class="feature-tag" data-zh="AI服务" data-en="AI Services">AI服务</span>
+                            </div>
+                            <a href="https://azure.microsoft.com/en-us/free/students/" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo gcp">
+                            <i class="fab fa-google"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Google Cloud for Education</h3>
+                            <div class="software-price">
+                                <span class="student-price" data-zh="$300 免费额度" data-en="$300 Free Credits">$300 免费额度</span>
+                            </div>
+                            <p data-zh="谷歌云平台的教育优惠，包含丰富的机器学习和数据分析工具" data-en="Google Cloud's education benefits with rich machine learning and data analytics tools">谷歌云平台的教育优惠，包含丰富的机器学习和数据分析工具</p>
+                            <div class="software-features">
+                                <span class="feature-tag" data-zh="机器学习" data-en="Machine Learning">机器学习</span>
+                                <span class="feature-tag" data-zh="大数据" data-en="Big Data">大数据</span>
+                                <span class="feature-tag">Kubernetes</span>
+                            </div>
+                            <a href="https://cloud.google.com/edu" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 专业云服务 -->
+        <section class="software-category alt-bg">
+            <div class="container">
+                <div class="category-header">
+                    <h2 data-zh="专业云服务" data-en="Specialized Cloud Services">专业云服务</h2>
+                    <p data-zh="针对特定需求的专业云服务平台" data-en="Specialized cloud service platforms for specific needs">针对特定需求的专业云服务平台</p>
+                </div>
+                <div class="software-grid">
+                    <div class="software-card">
+                        <div class="software-logo heroku">
+                            <i class="fas fa-cloud"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Heroku</h3>
+                            <div class="software-price">
+                                <span class="student-price" data-zh="免费托管" data-en="Free Hosting">免费托管</span>
+                            </div>
+                            <p data-zh="简单易用的应用部署平台，支持多种编程语言" data-en="Easy-to-use application deployment platform supporting multiple programming languages">简单易用的应用部署平台，支持多种编程语言</p>
+                            <div class="software-features">
+                                <span class="feature-tag" data-zh="快速部署" data-en="Quick Deploy">快速部署</span>
+                                <span class="feature-tag" data-zh="多语言支持" data-en="Multi-language">多语言支持</span>
+                                <span class="feature-tag" data-zh="插件生态" data-en="Add-ons">插件生态</span>
+                            </div>
+                            <a href="https://www.heroku.com/github-students" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo digitalocean">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>DigitalOcean</h3>
+                            <div class="software-price">
+                                <span class="student-price" data-zh="$200 免费额度" data-en="$200 Free Credits">$200 免费额度</span>
+                            </div>
+                            <p data-zh="开发者友好的云基础设施平台，提供简单的虚拟私有服务器" data-en="Developer-friendly cloud infrastructure platform with simple virtual private servers">开发者友好的云基础设施平台，提供简单的虚拟私有服务器</p>
+                            <div class="software-features">
+                                <span class="feature-tag">Droplets</span>
+                                <span class="feature-tag" data-zh="负载均衡" data-en="Load Balancer">负载均衡</span>
+                                <span class="feature-tag" data-zh="对象存储" data-en="Object Storage">对象存储</span>
+                            </div>
+                            <a href="https://www.digitalocean.com/github-students" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo netlify">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Netlify</h3>
+                            <div class="software-price">
+                                <span class="student-price" data-zh="Pro计划免费" data-en="Free Pro Plan">Pro计划免费</span>
+                            </div>
+                            <p data-zh="现代化的Web开发平台，专注于静态网站和JAMstack应用" data-en="Modern web development platform focused on static sites and JAMstack applications">现代化的Web开发平台，专注于静态网站和JAMstack应用</p>
+                            <div class="software-features">
+                                <span class="feature-tag" data-zh="持续部署" data-en="Continuous Deploy">持续部署</span>
+                                <span class="feature-tag">CDN</span>
+                                <span class="feature-tag" data-zh="表单处理" data-en="Form Handling">表单处理</span>
+                            </div>
+                            <a href="https://www.netlify.com/github-students-pack/" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 数据库服务 -->
+        <section class="software-category">
+            <div class="container">
+                <div class="category-header">
+                    <h2 data-zh="数据库服务" data-en="Database Services">数据库服务</h2>
+                    <p data-zh="云端数据库解决方案，支持各种数据存储需求" data-en="Cloud database solutions supporting various data storage needs">云端数据库解决方案，支持各种数据存储需求</p>
+                </div>
+                <div class="software-grid">
+                    <div class="software-card">
+                        <div class="software-logo mongodb">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>MongoDB Atlas</h3>
+                            <div class="software-price">
+                                <span class="student-price" data-zh="$200 免费额度" data-en="$200 Free Credits">$200 免费额度</span>
+                            </div>
+                            <p data-zh="全托管的MongoDB云数据库服务，支持全球部署" data-en="Fully managed MongoDB cloud database service with global deployment">全托管的MongoDB云数据库服务，支持全球部署</p>
+                            <div class="software-features">
+                                <span class="feature-tag">NoSQL</span>
+                                <span class="feature-tag" data-zh="自动扩展" data-en="Auto Scaling">自动扩展</span>
+                                <span class="feature-tag" data-zh="全球集群" data-en="Global Clusters">全球集群</span>
+                            </div>
+                            <a href="https://www.mongodb.com/students" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo redis">
+                            <i class="fas fa-memory"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Redis Cloud</h3>
+                            <div class="software-price">
+                                <span class="student-price" data-zh="免费计划" data-en="Free Plan">免费计划</span>
+                            </div>
+                            <p data-zh="高性能内存数据库服务，适用于缓存和实时应用" data-en="High-performance in-memory database service for caching and real-time applications">高性能内存数据库服务，适用于缓存和实时应用</p>
+                            <div class="software-features">
+                                <span class="feature-tag" data-zh="内存存储" data-en="In-Memory">内存存储</span>
+                                <span class="feature-tag" data-zh="高性能" data-en="High Performance">高性能</span>
+                                <span class="feature-tag" data-zh="实时分析" data-en="Real-time Analytics">实时分析</span>
+                            </div>
+                            <a href="https://redis.com/redis-enterprise-cloud/" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo planetscale">
+                            <i class="fas fa-planet-ringed"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>PlanetScale</h3>
+                            <div class="software-price">
+                                <span class="student-price" data-zh="免费计划" data-en="Free Plan">免费计划</span>
+                            </div>
+                            <p data-zh="无服务器MySQL平台，支持分支和无停机迁移" data-en="Serverless MySQL platform with branching and zero-downtime migrations">无服务器MySQL平台，支持分支和无停机迁移</p>
+                            <div class="software-features">
+                                <span class="feature-tag" data-zh="无服务器" data-en="Serverless">无服务器</span>
+                                <span class="feature-tag" data-zh="数据库分支" data-en="DB Branching">数据库分支</span>
+                                <span class="feature-tag" data-zh="自动扩展" data-en="Auto Scaling">自动扩展</span>
+                            </div>
+                            <a href="https://planetscale.com/" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 开发工具云服务 -->
+        <section class="software-category alt-bg">
+            <div class="container">
+                <div class="category-header">
+                    <h2 data-zh="开发工具云服务" data-en="Development Cloud Tools">开发工具云服务</h2>
+                    <p data-zh="提升开发效率的云端开发工具和服务" data-en="Cloud development tools and services to boost development efficiency">提升开发效率的云端开发工具和服务</p>
+                </div>
+                <div class="software-grid">
+                    <div class="software-card">
+                        <div class="software-logo vercel">
+                            <i class="fas fa-triangle"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Vercel</h3>
+                            <div class="software-price">
+                                <span class="student-price" data-zh="Pro计划免费" data-en="Free Pro Plan">Pro计划免费</span>
+                            </div>
+                            <p data-zh="前端部署平台，专为React、Vue、Next.js等框架优化" data-en="Frontend deployment platform optimized for React, Vue, Next.js and other frameworks">前端部署平台，专为React、Vue、Next.js等框架优化</p>
+                            <div class="software-features">
+                                <span class="feature-tag" data-zh="边缘网络" data-en="Edge Network">边缘网络</span>
+                                <span class="feature-tag" data-zh="无服务器函数" data-en="Serverless Functions">无服务器函数</span>
+                                <span class="feature-tag" data-zh="预览部署" data-en="Preview Deployments">预览部署</span>
+                            </div>
+                            <a href="https://vercel.com/github-students" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo gitpod">
+                            <i class="fas fa-code-branch"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Gitpod</h3>
+                            <div class="software-price">
+                                <span class="student-price" data-zh="个人计划免费" data-en="Free Personal Plan">个人计划免费</span>
+                            </div>
+                            <p data-zh="云端开发环境，在浏览器中直接编码，支持VS Code" data-en="Cloud development environment, code directly in browser with VS Code support">云端开发环境，在浏览器中直接编码，支持VS Code</p>
+                            <div class="software-features">
+                                <span class="feature-tag" data-zh="云端IDE" data-en="Cloud IDE">云端IDE</span>
+                                <span class="feature-tag" data-zh="预配置环境" data-en="Pre-configured">预配置环境</span>
+                                <span class="feature-tag" data-zh="协作编程" data-en="Collaborative">协作编程</span>
+                            </div>
+                            <a href="https://www.gitpod.io/students" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+
+                    <div class="software-card">
+                        <div class="software-logo namecheap">
+                            <i class="fas fa-globe-americas"></i>
+                        </div>
+                        <div class="software-content">
+                            <h3>Namecheap</h3>
+                            <div class="software-price">
+                                <span class="student-price" data-zh="免费域名" data-en="Free Domain">免费域名</span>
+                            </div>
+                            <p data-zh="免费.me域名一年，以及SSL证书和托管服务优惠" data-en="Free .me domain for one year, plus discounts on SSL certificates and hosting">免费.me域名一年，以及SSL证书和托管服务优惠</p>
+                            <div class="software-features">
+                                <span class="feature-tag" data-zh="免费域名" data-en="Free Domain">免费域名</span>
+                                <span class="feature-tag">SSL</span>
+                                <span class="feature-tag" data-zh="托管优惠" data-en="Hosting Discount">托管优惠</span>
+                            </div>
+                            <a href="https://nc.me/" target="_blank" class="software-btn" data-zh="立即申请" data-en="Apply Now">立即申请</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span data-zh="EDU福利" data-en="EDU Benefits">EDU福利</span>
+                    </div>
+                    <p data-zh="帮助学生发现和申请各种EDU邮箱福利，最大化学生身份的价值。" data-en="Helping students discover and apply for various EDU email benefits, maximizing the value of student status.">帮助学生发现和申请各种EDU邮箱福利，最大化学生身份的价值。</p>
+                </div>
+                <div class="footer-section">
+                    <h4 data-zh="快速链接" data-en="Quick Links">快速链接</h4>
+                    <ul>
+                        <li><a href="software.html" data-zh="软件工具" data-en="Software">软件工具</a></li>
+                        <li><a href="cloud.html" data-zh="云服务" data-en="Cloud Services">云服务</a></li>
+                        <li><a href="learning.html" data-zh="学习资源" data-en="Learning">学习资源</a></li>
+                        <li><a href="entertainment.html" data-zh="娱乐服务" data-en="Entertainment">娱乐服务</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-zh="联系我们" data-en="Contact Us">联系我们</h4>
+                    <p data-zh="如果您发现了新的EDU福利或有任何建议，欢迎联系我们。" data-en="If you discover new EDU benefits or have any suggestions, feel free to contact us.">如果您发现了新的EDU福利或有任何建议，欢迎联系我们。</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p data-zh="© 2024 EDU福利大全. 保留所有权利。" data-en="© 2024 EDU Benefits. All rights reserved.">© 2024 EDU福利大全. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 

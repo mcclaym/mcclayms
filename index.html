@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>实时 QR Code 生成器</title>
-  
+  <title>实时 / Real-time QR Code 生成器 / Generator</title>
   <style>
-    /* 全局样式 */
+    /* 全局样式 / Global styles */
     body {
       margin: 0;
       padding: 0;
@@ -17,7 +16,7 @@
       background: linear-gradient(135deg, #667eea, #764ba2);
       font-family: "Segoe UI", Tahoma, Arial, sans-serif;
     }
-    /* 容器样式 */
+    /* 容器样式 / Container */
     .container {
       background: #fff;
       padding: 2rem;
@@ -32,7 +31,7 @@
       font-size: 1.5rem;
       color: #333;
     }
-    /* 输入框样式 */
+    /* 输入框 / Input */
     #text {
       width: 100%;
       padding: 0.75rem;
@@ -45,7 +44,7 @@
     #text:focus {
       border-color: #667eea;
     }
-    /* 按钮样式 */
+    /* 按钮 / Buttons */
     .btn {
       margin-top: 1rem;
       margin-right: 0.5rem;
@@ -64,57 +63,105 @@
     .btn:hover {
       background: #556cd6;
     }
-    /* 二维码容器 */
+    /* 二维码容器 / QR code */
     #qrcode {
       margin-top: 1.5rem;
     }
     #qrcode canvas {
-      /* 可选：给二维码加个圆角和阴影 */
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    /* 提示文字 */
+    /* 提示文字 / Hint */
     .hint {
       margin-top: 0.5rem;
       font-size: 0.875rem;
       color: #666;
     }
+    /* 个人网站链接 / Personal link */
+    .personal {
+      margin-top: 1rem;
+      font-size: 0.875rem;
+    }
+    .personal a {
+      color: #667eea;
+      text-decoration: none;
+    }
+    .personal a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>实时 QR Code 生成器</h1>
+    <h1 id="title">实时 QR Code 生成器</h1>
     <input
       type="text"
       id="text"
       placeholder="请输入或粘贴内容，实时生成二维码"
       autofocus
     />
-    <p class="hint">支持 URL 参数：?data=你的内容</p>
+    <p id="hint" class="hint">支持 URL 参数：?data=你的内容</p>
 
-    <!-- 新增按钮 -->
+    <!-- 新增按钮 / Buttons -->
     <button id="pasteBtn" class="btn">粘贴</button>
     <button id="clearBtn" class="btn">清除</button>
 
+    <!-- 二维码显示区 / QR code container -->
     <div id="qrcode"></div>
+
+    <!-- 个人网站链接 / Personal website -->
+    <p id="personal" class="personal">
+      访问我的个人网站：<a href="http://chatgpt.org.uk" target="_blank" rel="noopener">chatgpt.org.uk</a>
+    </p>
   </div>
 
-  <!-- 前端二维码库 -->
+  <!-- 引入二维码库 / QR code library -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
+    // 文本 / Translations
+    const texts = {
+      en: {
+        title: 'Real-time QR Code Generator',
+        placeholder: 'Enter or paste content to generate QR code in real time',
+        hint: 'Supports URL parameter: ?data=your content',
+        pasteBtn: 'Paste',
+        clearBtn: 'Clear',
+        personal: 'Visit my personal website: '
+      },
+      zh: {
+        title: '实时 QR Code 生成器',
+        placeholder: '请输入或粘贴内容，实时生成二维码',
+        hint: '支持 URL 参数：?data=你的内容',
+        pasteBtn: '粘贴',
+        clearBtn: '清除',
+        personal: '访问我的个人网站：'
+      }
+    };
+
+    // 语言检测 / detect browser language
+    const lang = navigator.language && navigator.language.startsWith('zh') ? 'zh' : 'en';
+
+    // 应用文本 / apply translations
+    document.getElementById('title').innerText = texts[lang].title;
+    document.getElementById('text').placeholder = texts[lang].placeholder;
+    document.getElementById('hint').innerText = texts[lang].hint;
+    document.getElementById('pasteBtn').innerText = texts[lang].pasteBtn;
+    document.getElementById('clearBtn').innerText = texts[lang].clearBtn;
+    document.getElementById('personal').firstChild.nodeValue = texts[lang].personal;
+
     const input = document.getElementById('text');
     const qrContainer = document.getElementById('qrcode');
     const pasteBtn = document.getElementById('pasteBtn');
     const clearBtn = document.getElementById('clearBtn');
     let debounceTimer = null;
 
-    // 生成二维码并渲染到页面
+    // 生成二维码 / generate QR code
     function generateQRCode(text) {
       qrContainer.innerHTML = '';
       if (!text) return;
       QRCode.toCanvas(text, { width: 256 }, (err, canvas) => {
         if (err) {
-          qrContainer.textContent = '二维码生成失败';
+          qrContainer.textContent = lang === 'zh' ? '二维码生成失败' : 'QR code generation failed';
           console.error(err);
         } else {
           qrContainer.appendChild(canvas);
@@ -122,7 +169,7 @@
       });
     }
 
-    // 输入时防抖处理，300ms 后生成
+    // 输入防抖 / debounce on input
     input.addEventListener('input', () => {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
@@ -130,25 +177,25 @@
       }, 300);
     });
 
-    // 粘贴按钮：从剪贴板读取文本
+    // 粘贴按钮 / Paste from clipboard
     pasteBtn.addEventListener('click', async () => {
       try {
         const text = await navigator.clipboard.readText();
         input.value = text;
         generateQRCode(text);
       } catch (err) {
-        console.error('读取剪贴板失败', err);
+        console.error(lang === 'zh' ? '读取剪贴板失败' : 'Failed to read clipboard', err);
       }
     });
 
-    // 清除按钮：清空输入并移除二维码
+    // 清除按钮 / Clear input & QR
     clearBtn.addEventListener('click', () => {
       input.value = '';
       qrContainer.innerHTML = '';
       input.focus();
     });
 
-    // 如果 URL 带 data 参数，自动填充并生成
+    // URL 参数自动生成 / auto-generate from URL
     const params = new URLSearchParams(window.location.search);
     const data = params.get('data');
     if (data) {
